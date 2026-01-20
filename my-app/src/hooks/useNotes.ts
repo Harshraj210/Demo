@@ -9,8 +9,8 @@ export function useNotes(currentFolderId?: string | null) {
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchNotes = useCallback(async () => {
-        setLoading(true);
+    const fetchNotes = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             let fetched: Note[];
             if (currentFolderId === undefined) {
@@ -24,29 +24,33 @@ export function useNotes(currentFolderId?: string | null) {
         } catch (error) {
             console.error("Failed to fetch notes:", error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, [currentFolderId]);
 
     useEffect(() => {
         fetchNotes();
 
-        const handleUpdate = () => fetchNotes();
+        const handleUpdate = () => fetchNotes(true); // Silent update on shared events
         window.addEventListener('app:notes-updated', handleUpdate);
         return () => window.removeEventListener('app:notes-updated', handleUpdate);
     }, [fetchNotes]);
 
-    const createNote = async (title: string = 'Untitled Note') => {
+    const createNote = async (title: string = 'Untitled Note', targetFolderId?: string | null) => {
         const newNote: Note = {
             id: uuidv4(),
             title,
-            folderId: currentFolderId ?? null,
+            folderId: targetFolderId !== undefined ? targetFolderId : (currentFolderId ?? null),
             cells: [{ id: uuidv4(), type: 'markdown', content: '' }],
             createdAt: Date.now(),
             updatedAt: Date.now(),
         };
+        // Optimistic update
+        if (newNote.folderId === (currentFolderId ?? null)) {
+            setNotes(prev => [newNote, ...prev]);
+        }
+
         await db.notes.put(newNote);
-        await fetchNotes(); // Refresh
         window.dispatchEvent(new CustomEvent('app:notes-updated'));
         return newNote;
     };

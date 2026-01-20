@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     FileText,
-    Settings,
-    Plus
+    Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -96,21 +95,32 @@ export function Sidebar() {
 
                 {/* Navigation */}
                 <div className="flex-1 overflow-y-auto py-4 space-y-2">
-                    <Link href="/">
-                        <Button
-                            variant={!searchParams.get('folder') && !searchParams.get('view') ? "secondary" : "ghost"}
-                            className={cn(
-                                "w-full justify-start h-10 px-4 transition-all duration-200",
-                                isCollapsed ? "justify-center px-0" : "",
-                                !searchParams.get('folder') && !searchParams.get('view') ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-foreground hover:bg-accent/50"
-                            )}
-                        >
-                            <Clock className={cn("h-5 w-5 shrink-0", !searchParams.get('folder') && !searchParams.get('view') ? "text-primary" : "text-muted-foreground")} />
-                            {!isCollapsed && <span className="ml-3 font-medium">Recent Files</span>}
-                        </Button>
-                    </Link>
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <Link href="/">
+                            <Button
+                                variant={!searchParams.get('folder') && !searchParams.get('view') ? "secondary" : "ghost"}
+                                className={cn(
+                                    "w-full justify-start h-10 px-4 transition-all duration-200",
+                                    isCollapsed ? "justify-center px-0" : "",
+                                    !searchParams.get('folder') && !searchParams.get('view') ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-foreground hover:bg-accent/50"
+                                )}
+                            >
+                                <Clock className={cn("h-5 w-5 shrink-0", !searchParams.get('folder') && !searchParams.get('view') ? "text-primary" : "text-muted-foreground")} />
+                                {!isCollapsed && <span className="ml-3 font-medium">Recent Files</span>}
+                            </Button>
+                        </Link>
+                    </motion.div>
 
-                    <div className="group relative">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="group relative"
+                    >
                         <Button
                             variant={searchParams.get('view') === 'folders' || searchParams.get('folder') ? "secondary" : "ghost"}
                             className={cn(
@@ -118,58 +128,46 @@ export function Sidebar() {
                                 isCollapsed ? "justify-center px-0" : "",
                                 (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-foreground hover:bg-accent/50"
                             )}
-                    <div className="group relative">
-                            <Button
-                                variant={searchParams.get('view') === 'folders' || searchParams.get('folder') ? "secondary" : "ghost"}
-                                className={cn(
-                                    "w-full justify-start h-10 px-4 transition-all duration-200",
-                                    isCollapsed ? "justify-center px-0" : "",
-                                    (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-foreground hover:bg-accent/50"
-                                )}
-                                onClick={() => {
-                                    router.push('/?view=folders');
-                                }}
-                            >
-                                <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
-                                {!isCollapsed && <span className="ml-3 font-medium">Folders</span>}
-                            </Button>
-                        </div>
-                    </div>
+                            onClick={() => {
+                                router.push('/?view=folders');
+                            }}
+                        >
+                            <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
+                            {!isCollapsed && <span className="ml-3 font-medium">Folders</span>}
+                        </Button>
+                    </motion.div>
+                </div>
 
-                    {/* User / Engagement */}
-                    <div
-                        className="p-4 border-t border-border cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => router.push('/profile')}
-                    >
-                        <div className="p-4 border-t border-border shrink-0">
-                            {!isCollapsed ? (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="flex items-center gap-3"
-                                >
-                                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
-                                        U
-                                    </div>
-                                    <div className="flex-1 overflow-hidden">
-                                        <p className="text-sm font-medium truncate">User</p>
-                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                            🔥 5 Day Streak
-                                        </p>
-                                    </div>
-                                    <Settings className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground shrink-0" />
-                                </motion.div>
-                            ) : (
-                                <div className="flex justify-center flex-col items-center gap-4">
-                                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">U</div>
-                                    <Settings className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground" />
-                                </div>
-                            )}
+                {/* User / Engagement */}
+                <div
+                    className="p-6 border-t border-border cursor-pointer hover:bg-muted/30 transition-colors"
+                    onClick={() => router.push('/profile')}
+                >
+                    {!isCollapsed ? (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex items-center gap-3"
+                        >
+                            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
+                                U
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                                <p className="text-sm font-medium truncate">User</p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                    🔥 5 Day Streak
+                                </p>
+                            </div>
+                            <Settings className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground shrink-0" />
+                        </motion.div>
+                    ) : (
+                        <div className="flex justify-center flex-col items-center gap-4">
+                            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">U</div>
+                            <Settings className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground" />
                         </div>
-                    </div>
+                    )}
+                </div>
             </motion.aside>
-
-
         </div>
     );
 }

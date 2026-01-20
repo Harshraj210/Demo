@@ -9,22 +9,22 @@ export function useFolders() {
     const [folders, setFolders] = useState<Folder[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchFolders = useCallback(async () => {
-        setLoading(true);
+    const fetchFolders = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const fetched = await db.folders.getAll();
             setFolders(fetched);
         } catch (error) {
             console.error("Failed to fetch folders:", error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, []);
 
     useEffect(() => {
         fetchFolders();
 
-        const handleUpdate = () => fetchFolders();
+        const handleUpdate = () => fetchFolders(true); // Silent update on shared events
         window.addEventListener('app:folders-updated', handleUpdate);
         return () => window.removeEventListener('app:folders-updated', handleUpdate);
     }, [fetchFolders]);
@@ -36,8 +36,10 @@ export function useFolders() {
             parentId,
             createdAt: Date.now(),
         };
+        // Optimistic update
+        setFolders(prev => [newFolder, ...prev]);
+
         await db.folders.put(newFolder);
-        await fetchFolders();
         window.dispatchEvent(new CustomEvent('app:folders-updated'));
         return newFolder;
     };
