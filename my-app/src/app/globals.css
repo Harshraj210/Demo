@@ -1,29 +1,34 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* Modern Palette - Light Mode */
-  --primary: #6366f1; /* Indigo 500 */
+  --primary: #6366f1;
+  /* Indigo 500 */
   --primary-foreground: #ffffff;
-  
-  --secondary: #e2e8f0; /* Slate 200 */
+
+  --secondary: #e2e8f0;
+  /* Slate 200 */
   --secondary-foreground: #1e293b;
-  
-  --muted: #f1f5f9; /* Slate 100 */
+
+  --muted: #f1f5f9;
+  /* Slate 100 */
   --muted-foreground: #64748b;
-  
-  --accent: #f43f5e; /* Rose 500 */
+
+  --accent: #f43f5e;
+  /* Rose 500 */
   --accent-foreground: #ffffff;
-  
+
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #6366f1;
-  
+
   --radius: 0.5rem;
 }
 
@@ -31,22 +36,26 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    
-    --primary: #818cf8; /* Indigo 400 */
+
+    --primary: #818cf8;
+    /* Indigo 400 */
     --primary-foreground: #ffffff;
-    
-    --secondary: #1e293b; /* Slate 800 */
+
+    --secondary: #1e293b;
+    /* Slate 800 */
     --secondary-foreground: #f8fafc;
-    
-    --muted: #1e293b; /* Slate 800 */
+
+    --muted: #1e293b;
+    /* Slate 800 */
     --muted-foreground: #94a3b8;
-    
-    --accent: #fb7185; /* Rose 400 */
+
+    --accent: #fb7185;
+    /* Rose 400 */
     --accent-foreground: #ffffff;
-    
+
     --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    
+
     --border: #1e293b;
     --input: #1e293b;
     --ring: #818cf8;
@@ -59,22 +68,22 @@
   --color-ring: var(--ring);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  
+
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  
+
   --radius-radius: var(--radius);
 }
 

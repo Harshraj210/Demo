@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useNotes } from '@/hooks/useNotes';
 import { Plus, FileText } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const router = useRouter();
@@ -18,6 +19,21 @@ export default function Home() {
     router.push(`/notes/${id}`);
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <div className="mb-8 flex items-center justify-between">
@@ -30,8 +46,14 @@ export default function Home() {
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading notes...</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        >
+          <motion.div
+            variants={item}
             onClick={handleCreateNote}
             className="aspect-[3/4] rounded-lg border-2 border-dashed border-muted-foreground/20 hover:border-primary hover:bg-primary/5 cursor-pointer flex flex-col items-center justify-center text-muted-foreground transition-all group"
           >
@@ -39,10 +61,11 @@ export default function Home() {
               <Plus className="h-6 w-6 group-hover:text-primary transition-colors" />
             </div>
             <span className="font-medium group-hover:text-primary">Create New Note</span>
-          </div>
+          </motion.div>
 
           {notes.map(note => (
-            <div
+            <motion.div
+              variants={item}
               key={note.id}
               onClick={() => handleOpenNote(note.id)}
               className="aspect-[3/4] rounded-lg border bg-card p-4 hover:shadow-md transition-all cursor-pointer relative group flex flex-col"
@@ -65,9 +88,9 @@ export default function Home() {
                   <FileText className="h-4 w-4 text-primary" />
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import { Summarizer } from './Summarizer';
 import { QuizGenerator } from './QuizGenerator';
 import { AIChat } from './AIChat';
+import { motion } from 'framer-motion';
 
 export type AIToolType = 'summarize' | 'chat' | 'quiz' | null;
 
@@ -17,7 +18,13 @@ interface AISidebarPanelProps {
 }
 
 export function AISidebarPanel({ isOpen, activeTool, onClose, noteContent }: AISidebarPanelProps) {
-    if (!isOpen || !activeTool) return null;
+    // If not open or no tool, we don't render. 
+    // However, with AnimatePresence in parent, we might want to handle exit animations here.
+    // The parent conditionally renders this component, so we can just use motion.div for enter/exit.
+
+    // We can ignore the internal `isOpen` check if the parent handles mounting/unmounting with AnimatePresence.
+    // But for safety let's keep the null check if activeTool is null.
+    if (!activeTool) return null;
 
     const renderTool = () => {
         switch (activeTool) {
@@ -42,7 +49,14 @@ export function AISidebarPanel({ isOpen, activeTool, onClose, noteContent }: AIS
     };
 
     return (
-        <div className="absolute top-0 right-[-320px] w-[320px] h-full bg-background border-l shadow-2xl z-50 transition-all duration-300 transform translate-x-0 flex flex-col">
+        <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute top-0 right-[-320px] w-[320px] h-full bg-background border-l shadow-2xl z-50 flex flex-col"
+            style={{ right: 0 }} // Override the right-[-320px] from previous css class if needed, or just remove it from className
+        >
             <div className="p-4 border-b flex items-center justify-between bg-muted/30">
                 <h3 className="font-semibold text-sm">{getTitle()}</h3>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onClose}>
@@ -53,6 +67,6 @@ export function AISidebarPanel({ isOpen, activeTool, onClose, noteContent }: AIS
             <div className="flex-1 overflow-hidden">
                 {renderTool()}
             </div>
-        </div>
+        </motion.div>
     );
 }

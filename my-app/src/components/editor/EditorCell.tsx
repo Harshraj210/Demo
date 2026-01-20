@@ -4,15 +4,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css'; // Ensure CSS is imported in globals or here. 
-// Note: We might need to import katex CSS in globals if this fails, but let's try.
+import 'katex/dist/katex.min.css';
 import { Cell } from '@/store/types';
 import { cn } from '@/lib/utils';
-import { Textarea } from '@/components/ui/textarea'; // We need this component or raw textarea
 import { Button } from '@/components/ui/button';
-import { Trash2, GripVertical, Sparkles } from 'lucide-react';
+import { Trash2, GripVertical, Sparkles, AlertCircle } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { LintService, LintError } from '@/lib/lint-service';
 
 interface EditorCellProps {
     cell: Cell;
@@ -23,6 +22,7 @@ interface EditorCellProps {
 
 export function EditorCell({ cell, onChange, onDelete, isActive }: EditorCellProps) {
     const [isEditing, setIsEditing] = useState(false);
+    const [lintErrors, setLintErrors] = useState<LintError[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const {
@@ -45,6 +45,19 @@ export function EditorCell({ cell, onChange, onDelete, isActive }: EditorCellPro
         if (isEditing && textareaRef.current) {
             textareaRef.current.style.height = 'auto';
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    }, [cell.content, isEditing]);
+
+    // Run linting when editing
+    useEffect(() => {
+        if (isEditing) {
+            const timer = setTimeout(() => {
+                const errors = LintService.lint(cell.content);
+                setLintErrors(errors);
+            }, 500); // Debounce
+            return () => clearTimeout(timer);
+        } else {
+            setLintErrors([]); // Clear errors when not editing/view mode
         }
     }, [cell.content, isEditing]);
 
@@ -74,15 +87,37 @@ export function EditorCell({ cell, onChange, onDelete, isActive }: EditorCellPro
                 onClick={() => setIsEditing(true)}
             >
                 {isEditing ? (
-                    <textarea
-                        ref={textareaRef}
-                        value={cell.content}
-                        onChange={(e) => onChange(e.target.value)}
-                        onBlur={() => setIsEditing(false)}
-                        className="w-full bg-transparent resize-none outline-none font-mono text-sm leading-relaxed"
-                        placeholder="Type markdown..."
-                        autoFocus
-                    />
+                    <div className="space-y-2">
+                        <textarea
+                            ref={textareaRef}
+                            value={cell.content}
+                            onChange={(e) => onChange(e.target.value)}
+                            onBlur={() => setIsEditing(false)}
+                            className="w-full bg-transparent resize-none outline-none font-mono text-sm leading-relaxed"
+                            placeholder="Type markdown..."
+                            autoFocus
+                        />
+                        {/* Lint Warnings */}
+                        {lintErrors.length > 0 && (
+                            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-md p-2 text-xs text-yellow-800 dark:text-yellow-200">
+                                <div className="flex items-center gap-1.5 font-semibold mb-1">
+                                    <AlertCircle className="h-3 w-3" />
+                                    <span>Writing Suggestions</span>
+                                </div>
+                                <ul className="pl-5 list-disc space-y-0.5">
+                                    {lintErrors.slice(0, 3).map((err) => (
+                                        <li key={err.id}>
+                                            <span className="opacity-80">{err.message}</span>
+                                            {err.suggestion && <span className="font-medium ml-1">→ {err.suggestion}</span>}
+                                        </li>
+                                    ))}
+                                    {lintErrors.length > 3 && (
+                                        <li className="list-none opacity-70 italic">+{lintErrors.length - 3} more...</li>
+                                    )}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
                 ) : (
                     <div className="prose dark:prose-invert max-w-none">
                         {cell.content ? (
