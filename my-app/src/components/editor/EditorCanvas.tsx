@@ -266,67 +266,7 @@ export function EditorCanvas({ note, onUpdate }: EditorCanvasProps) {
 
     return (
         <div className="max-w-4xl mx-auto flex flex-col h-full bg-transparent">
-            {/* Menu Bar */}
-            <div className="flex items-center px-4 py-1 border-b text-sm bg-secondary/50 backdrop-blur-md shrink-0">
-                <div className="flex items-center gap-1">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-normal">File</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem onClick={() => addCell()}>
-                                New Cell <DropdownMenuShortcut>N</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleSave}>
-                                Save <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-normal">Edit</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem onClick={handleUndo} disabled={past.length === 0}>
-                                Undo <DropdownMenuShortcut>⌘Z</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleRedo} disabled={future.length === 0}>
-                                Redo <DropdownMenuShortcut>⌘Y</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={handleCut} disabled={!selectedCellId}>
-                                Cut Cell <DropdownMenuShortcut>X</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleCopy} disabled={!selectedCellId}>
-                                Copy Cell <DropdownMenuShortcut>C</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handlePaste} disabled={!clipboard}>
-                                Paste Cell <DropdownMenuShortcut>V</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-normal">View</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem>Toggle Header</DropdownMenuItem>
-                            <DropdownMenuItem>Toggle Toolbar</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-normal">Run</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem>Run All Cells</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
+            {/* Menu Bar removed as per user request */}
 
             {/* Toolbar */}
             <div className="flex items-center px-4 py-2 border-b bg-background/40 backdrop-blur-md gap-1 shrink-0 overflow-x-auto">
@@ -357,12 +297,12 @@ export function EditorCanvas({ note, onUpdate }: EditorCanvasProps) {
 
             <div className="flex-1 overflow-y-auto w-full">
                 <div className="max-w-3xl mx-auto py-8 px-4 pb-32">
-                    <div className="mb-6 px-1">
+                    <div className="mb-8 px-1 flex justify-center">
                         <input
                             type="text"
                             value={note.title}
                             onChange={(e) => onUpdate({ ...note, title: e.target.value })}
-                            className="text-4xl font-bold bg-transparent border-none outline-none w-full placeholder:text-muted-foreground"
+                            className="text-5xl font-extrabold bg-transparent border-none outline-none w-full text-center placeholder:text-muted-foreground/40 focus:placeholder:text-muted-foreground/20 transition-all"
                             placeholder="Untitled Note"
                         />
                     </div>
