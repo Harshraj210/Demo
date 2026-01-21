@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { useNote } from '@/hooks/useNote';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
-import { Loader2, Brain, MessageSquare, BarChart, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { Loader2, Brain, MessageSquare, BarChart, PanelRightClose, PanelRightOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AISidebarPanel, AIToolType } from '@/components/ai/AISidebarPanel';
 import { AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
+import { useRouter } from 'next/navigation';
+
 export function NoteEditor({ id }: { id: string }) {
+    const router = useRouter();
     const { note, loading, saveNote } = useNote(id);
     const [activeTool, setActiveTool] = useState<AIToolType>(null); // Default to closed
 
@@ -44,51 +47,21 @@ export function NoteEditor({ id }: { id: string }) {
         <div className="flex flex-col h-full overflow-hidden bg-transparent">
             {/* Top Bar */}
             <div className="h-14 border-b flex items-center justify-between px-4 bg-background/40 backdrop-blur-md shrink-0 z-10 transition-all">
-                {/* Title - Added left padding on mobile to avoid overlap with menu button */}
-                <div className="font-medium truncate max-w-md pl-12 md:pl-0 transition-[padding]" title={note.title}>
-                    {note.title || "Untitled Note"}
+                <div className="flex items-center gap-4">
+                     <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => router.push('/')} 
+                        className="h-9 w-9 -ml-2 text-muted-foreground hover:text-foreground"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div className="font-semibold text-lg truncate max-w-md transition-[padding]" title={note.title}>
+                        {note.title || "Untitled Note"}
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center bg-muted/50 rounded-lg p-1 gap-1">
-                        <Button
-                            variant={activeTool === 'chat' ? "secondary" : "ghost"}
-                            size="sm"
-                            onClick={() => toggleTool('chat')}
-                            className={cn(
-                                "h-8 gap-2 transition-all", 
-                                activeTool === 'chat' ? "bg-background shadow-sm text-primary font-medium" : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <MessageSquare className="h-4 w-4" />
-                            <span className="hidden sm:inline">Chat</span>
-                        </Button>
-                        <Button
-                            variant={activeTool === 'summarize' ? "secondary" : "ghost"}
-                            size="sm"
-                            onClick={() => toggleTool('summarize')}
-                            className={cn(
-                                "h-8 gap-2 transition-all",
-                                activeTool === 'summarize' ? "bg-background shadow-sm text-primary font-medium" : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <Brain className="h-4 w-4" />
-                            <span className="hidden sm:inline">Summarize</span>
-                        </Button>
-                        <Button
-                            variant={activeTool === 'quiz' ? "secondary" : "ghost"}
-                            size="sm"
-                            onClick={() => toggleTool('quiz')}
-                            className={cn(
-                                "h-8 gap-2 transition-all",
-                                activeTool === 'quiz' ? "bg-background shadow-sm text-primary font-medium" : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <BarChart className="h-4 w-4" />
-                            <span className="hidden sm:inline">Quiz</span>
-                        </Button>
-                    </div>
-
                     <div className="w-px h-6 bg-border mx-1" />
 
                     <Button
@@ -119,6 +92,7 @@ export function NoteEditor({ id }: { id: string }) {
                             isOpen={true}
                             activeTool={activeTool}
                             onClose={() => setActiveTool(null)}
+                            onToolChange={setActiveTool}
                             noteContent={noteContent}
                         />
                     )}

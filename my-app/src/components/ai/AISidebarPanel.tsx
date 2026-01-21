@@ -14,10 +14,11 @@ interface AISidebarPanelProps {
     isOpen: boolean;
     activeTool: AIToolType;
     onClose: () => void;
+    onToolChange: (tool: AIToolType) => void;
     noteContent: string;
 }
 
-export function AISidebarPanel({ isOpen, activeTool, onClose, noteContent }: AISidebarPanelProps) {
+export function AISidebarPanel({ isOpen, activeTool, onClose, onToolChange, noteContent }: AISidebarPanelProps) {
     // If not open or no tool, we don't render. 
     // However, with AnimatePresence in parent, we might want to handle exit animations here.
     // The parent conditionally renders this component, so we can just use motion.div for enter/exit.
@@ -56,11 +57,40 @@ export function AISidebarPanel({ isOpen, activeTool, onClose, noteContent }: AIS
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed inset-0 z-50 w-full bg-background/95 backdrop-blur-xl flex flex-col h-full shadow-2xl md:static md:w-[350px] md:border-l md:shadow-none md:z-auto"
         >
-            <div className="p-4 border-b flex items-center justify-between bg-muted/20 shrink-0">
-                <h3 className="font-semibold text-sm">{getTitle()}</h3>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={onClose}>
-                    <X className="h-4 w-4" />
-                </Button>
+            <div className="p-4 border-b flex flex-col gap-4 bg-muted/20 shrink-0">
+                <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm">{getTitle()}</h3>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={onClose}>
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+                
+                <div className="flex bg-muted rounded-lg p-1">
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={`flex-1 h-7 text-xs ${activeTool === 'chat' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                        onClick={() => onToolChange('chat')}
+                    >
+                        Chat
+                    </Button>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={`flex-1 h-7 text-xs ${activeTool === 'summarize' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                        onClick={() => onToolChange('summarize')}
+                    >
+                        Summarize
+                    </Button>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={`flex-1 h-7 text-xs ${activeTool === 'quiz' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                        onClick={() => onToolChange('quiz')}
+                    >
+                        Quiz
+                    </Button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-hidden">
