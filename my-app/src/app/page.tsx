@@ -261,43 +261,7 @@ function HomeContent() {
           {/* Folders View Grid */}
           {isFoldersView && (
             <>
-              {/* Inline Folder Creation */}
-              {inlineAdding === 'folder' && (
-                <motion.div
-                  variants={item}
-                  className="flex flex-col gap-3 group"
-                >
-                  <div className="aspect-4/5 rounded-2xl bg-blue-500/5 border border-blue-500/30 p-4 relative shadow-lg flex flex-col items-center justify-center">
-                    <div className="p-6 rounded-2xl bg-blue-500/10 text-blue-400">
-                      <FolderIcon className="h-12 w-12" />
-                    </div>
-                  </div>
-                  <div className="text-center px-2">
-                    <input
-                      autoFocus
-                      className="bg-transparent border-b border-blue-500/50 text-sm font-medium w-full text-center focus:outline-none placeholder:text-white/20"
-                      placeholder="Folder name..."
-                      value={inlineName}
-                      onChange={e => setInlineName(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleInlineSubmit();
-                        } else if (e.key === 'Escape') {
-                          handleInlineCancel();
-                        }
-                      }}
-                      onBlur={() => {
-                        // Small delay to allow potential submit clicks but handle accidental clicks away
-                        setTimeout(() => {
-                          if (inlineName.trim()) handleInlineSubmit();
-                          else handleInlineCancel();
-                        }, 200);
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              )}
+              {/* Inline Folder Creation Removed - Direct creation used instead */}
 
               {filteredFolders.map(folder => (
                 <motion.div
@@ -342,42 +306,7 @@ function HomeContent() {
           {/* Notes Grid (Recent or Folder Detail) */}
           {(isRecentView || isFolderDetailView) && (
             <>
-              {/* Inline Note Creation */}
-              {inlineAdding === 'note' && (
-                <motion.div
-                  variants={item}
-                  className="flex flex-col gap-3 group"
-                >
-                  <div className="aspect-4/5 rounded-2xl bg-blue-500/5 border border-blue-500/30 p-4 relative shadow-lg flex flex-col items-center justify-center">
-                    <div className="p-6 rounded-2xl bg-blue-500/10 text-blue-400">
-                      <FilePlus className="h-12 w-12" />
-                    </div>
-                  </div>
-                  <div className="text-center px-2">
-                    <input
-                      autoFocus
-                      className="bg-transparent border-b border-blue-500/50 text-sm font-medium w-full text-center focus:outline-none placeholder:text-white/20"
-                      placeholder="Note title..."
-                      value={inlineName}
-                      onChange={e => setInlineName(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleInlineSubmit();
-                        } else if (e.key === 'Escape') {
-                          handleInlineCancel();
-                        }
-                      }}
-                      onBlur={() => {
-                        setTimeout(() => {
-                          if (inlineName.trim()) handleInlineSubmit();
-                          else handleInlineCancel();
-                        }, 200);
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              )}
+              {/* Inline Note Creation Removed - Direct creation used instead */}
               {filteredNotes.map(note => (
                 <motion.div
                   variants={item}
@@ -454,13 +383,29 @@ function HomeContent() {
         className="fixed bottom-8 right-8 z-50 pointer-events-auto"
       >
         <Button
-          onClick={() => {
+          onClick={async () => {
             if (isFoldersView) {
-              setInlineAdding('folder');
+              // Direct creation for folders
+              try {
+                  const newFolder = await createFolder("Untitled Folder");
+                  if (newFolder) {
+                      router.push(`/?folder=${newFolder.id}`);
+                  }
+              } catch (error) {
+                  console.error("Failed to create folder:", error);
+              }
+              setSearchQuery('');
             } else {
-              setInlineAdding('note');
+              // Direct creation for notes
+              try {
+                  const newNote = await createNote("Untitled Note", folderId || null);
+                  if (newNote) {
+                      router.push(`/notes/${newNote.id}`);
+                  }
+              } catch (error) {
+                  console.error("Failed to create note:", error);
+              }
             }
-            setSearchQuery('');
           }}
           size="lg"
           className="h-14 min-w-14 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.7)] border-none transition-all flex items-center justify-center gap-2 px-4 group"

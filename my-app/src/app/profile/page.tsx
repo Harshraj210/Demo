@@ -9,7 +9,8 @@ import {
     Flame,
     Github,
     X,
-    Star
+    Star,
+    Loader2
 } from 'lucide-react';
 import { useTheme } from "next-themes";
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ export default function ProfilePage() {
     // Profile State
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState({
-        name: USER_PROFILE.name
+        name: USER_PROFILE.name || "User"
     });
     const [editForm, setEditForm] = useState(profile);
     const [selectedTopic, setSelectedTopic] = useState<typeof TOPICS[0] | null>(null);
@@ -51,6 +52,9 @@ export default function ProfilePage() {
         if (savedName) {
             setProfile(p => ({ ...p, name: savedName }));
             setEditForm(p => ({ ...p, name: savedName }));
+        } else if (!USER_PROFILE.name) {
+             setProfile(p => ({ ...p, name: "User" }));
+             setEditForm(p => ({ ...p, name: "User" }));
         }
 
         setMounted(true);
@@ -74,86 +78,83 @@ export default function ProfilePage() {
 
     if (!mounted) {
         return <div className="p-8 flex items-center justify-center min-h-[50vh]">
-            <div className="animate-pulse text-muted-foreground">Loading specific profile data...</div>
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>;
     }
 
     return (
-        <div className="p-4 pt-16 md:p-8 md:pt-8 max-w-5xl mx-auto space-y-8 relative animate-in fade-in duration-500">
+        <div className="p-4 pt-20 md:p-8 md:pt-8 max-w-5xl mx-auto space-y-6 md:space-y-8 relative animate-in fade-in duration-500 pb-24 h-full overflow-y-auto">
             
             {/* User Info Card */}
-            <div className="group bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                {/* Decorative Banner */}
-                <div className="h-32 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent relative">
+            <div className="group bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                {/* Banner */}
+                <div className="h-32 sm:h-40 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent relative shrink-0">
                     <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,transparent)]" />
                 </div>
                 
-                <div className="p-6 pt-0 relative flex flex-col md:flex-row items-center md:items-start gap-6">
-                    {/* Avatar with overlapping positioning */}
-                    <div className="-mt-12 shrink-0 relative">
-                        <div className="h-32 w-32 rounded-full border-4 border-background bg-card flex items-center justify-center shadow-lg">
+                <div className="px-6 pb-6 relative">
+                    {/* Avatar - Centered on mobile, Left on desktop */}
+                    <div className="flex justify-center md:justify-start -mt-16 mb-4 relative z-10">
+                        <div className="h-32 w-32 rounded-full border-[6px] border-card bg-card flex items-center justify-center shadow-lg">
                             <span className="text-5xl font-bold text-primary bg-primary/10 w-full h-full flex items-center justify-center rounded-full">
-                                {profile.name.charAt(0)}
+                                {profile.name ? profile.name.charAt(0).toUpperCase() : "U"}
                             </span>
                         </div>
                     </div>
                     
-                    <div className="flex-1 text-center md:text-left space-y-3 w-full mt-2 md:mt-4">
-                        <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-4">
-                            {isEditing ? (
-                                <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                                    <Input 
-                                        value={editForm.name} 
-                                        onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                                        placeholder="Your Name"
-                                        className="text-2xl font-bold h-auto py-1 px-3 w-full md:w-auto min-w-[300px]"
-                                        autoFocus
-                                    />
-                                </div>
-                            ) : (
-                                <div>
-                                    <h2 className="text-3xl font-bold tracking-tight">{profile.name}</h2>
-                                </div>
-                            )}
-
-                            <div className="flex items-center gap-2">
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Main Info */}
+                        <div className="flex-1 text-center md:text-left space-y-4">
+                             <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
                                 {isEditing ? (
-                                    <>
-                                        <Button onClick={handleSave} className="gap-2 shadow-sm">
-                                            Save Changes
-                                        </Button>
-                                        <Button variant="outline" onClick={handleCancel} className="gap-2">
-                                            Cancel
-                                        </Button>
-                                    </>
+                                    <div className="w-full md:w-auto">
+                                        <Input 
+                                            value={editForm.name} 
+                                            onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                                            placeholder="Your Name"
+                                            className="text-2xl font-bold h-12 text-center md:text-left"
+                                            autoFocus
+                                        />
+                                    </div>
                                 ) : (
-                                    <Button variant="outline" onClick={handleEditToggle} className="gap-2 hover:bg-primary/5 transition-colors">
-                                        <Github className="h-4 w-4" />
-                                        Edit Profile
-                                    </Button>
+                                    <div>
+                                        <h2 className="text-3xl font-bold tracking-tight text-foreground">{profile.name}</h2>
+                                        <p className="text-muted-foreground font-medium">{USER_PROFILE.role || "Full Stack Developer"}</p>
+                                    </div>
                                 )}
+
+                                <div>
+                                    {isEditing ? (
+                                        <div className="flex items-center justify-center md:justify-start gap-2">
+                                            <Button onClick={handleSave} size="sm" className="bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all font-medium px-6">Save</Button>
+                                            <Button variant="outline" onClick={handleCancel} size="sm">Cancel</Button>
+                                        </div>
+                                    ) : (
+                                        <Button variant="outline" onClick={handleEditToggle} size="sm" className="gap-2 rounded-full">
+                                            Edit Profile
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        
-                        {/* Topics Section */}
-                        <div className="pt-2">
-                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Primary Skills</p>
-                            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                                {TOPICS.map(topic => (
-                                    <div 
-                                        key={topic.id}
-                                        onClick={() => setSelectedTopic(topic)}
-                                        className="group/tag bg-muted/50 hover:bg-primary/10 border border-border hover:border-primary/30 rounded-full px-4 py-1.5 text-sm flex items-center gap-2 cursor-pointer transition-all duration-200 hover:scale-105"
-                                    >
-                                        <span className="font-medium group-hover/tag:text-primary transition-colors">{topic.name}</span>
-                                        {topic.confidence > 0 && (
-                                            <div className="flex items-center gap-0.5 ml-1 px-1.5 py-0.5 rounded-full bg-background/50" title={`Confidence: ${topic.confidence}/5`}>
+                            
+                            {/* Topics */}
+                            <div className="space-y-2">
+                                <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest">Compentencies</p>
+                                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                                    {TOPICS.map(topic => (
+                                        <div 
+                                            key={topic.id}
+                                            onClick={() => setSelectedTopic(topic)}
+                                            className="cursor-pointer px-3 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground hover:bg-primary/20 hover:text-primary transition-colors flex items-center gap-1.5 border border-transparent hover:border-primary/20 group/star"
+                                        >
+                                            <span>{topic.name}</span>
+                                            <div className="flex items-center gap-0.5 ml-1 bg-background/50 px-1 py-0.5 rounded-full">
                                                 <span className="text-[10px] font-bold text-yellow-500">{topic.confidence}</span>
                                                 <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
                                             </div>
-                                        )}
-                                    </div>
-                                ))}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -161,12 +162,12 @@ export default function ProfilePage() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 {[
                     { 
                         label: 'Current Streak', 
                         value: `${USER_STATS.currentStreak} Days`, 
-                        subtext: 'Feb 18 - Mar 1', // Dummy date
+                        subtext: 'Feb 18 - Mar 1', 
                         icon: Flame, 
                         color: 'text-orange-500', 
                         bg: 'bg-orange-500/10' 
@@ -188,8 +189,8 @@ export default function ProfilePage() {
                         bg: 'bg-green-500/10' 
                     }
                 ].map((stat, i) => (
-                    <div key={i} className="group bg-card border border-border rounded-xl p-6 flex items-center gap-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300">
-                        <div className={`p-4 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
+                    <div key={i} className="group bg-card border border-border rounded-xl p-4 md:p-6 flex items-center gap-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300">
+                        <div className={`p-4 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300 shadow-inner shrink-0`}>
                             <stat.icon className="h-6 w-6" />
                         </div>
                         <div>
@@ -202,45 +203,59 @@ export default function ProfilePage() {
             </div>
 
             {/* Heatmap Section */}
-            <div className="bg-card border border-border rounded-xl p-6 md:p-8 shadow-sm space-y-6">
+            <div className="bg-card/50 backdrop-blur-md border border-border/50 rounded-2xl p-4 md:p-8 shadow-lg space-y-6 relative overflow-hidden min-h-[300px] max-w-full">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
+                
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                        <h3 className="text-lg font-semibold">Contribution Activity</h3>
-                        <p className="text-sm text-muted-foreground">Visualize your daily coding habits.</p>
+                        <h3 className="text-xl font-bold flex items-center gap-2">
+                             Activity Map
+                        </h3>
+                        <p className="text-sm text-muted-foreground">Your contribution history.</p>
                     </div>
-                    <select className="bg-background border border-border rounded-md text-sm px-3 py-1.5 focus:ring-2 focus:ring-primary/20 outline-none w-full sm:w-auto">
-                        <option>2024</option>
-                        <option>2023</option>
-                    </select>
+                    {/* Select removed for simplicity on mobile, or kept */}
                 </div>
                 
-                <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
-                    <div className="min-w-[800px] flex justify-center">
-                         <ActivityCalendar
-                            data={contributionData}
-                            colorScheme={theme === 'dark' ? 'dark' : 'light'}
-                            blockSize={14}
-                            blockMargin={4}
-                            fontSize={14}
-                            theme={{
-                                light: ['#f1f5f9', '#c7d2fe', '#818cf8', '#4f46e5', '#312e81'], // Indigo scale
-                                dark: ['#1e293b', '#1e3a8a', '#3b82f6', '#60a5fa', '#93c5fd'], // Blue scale
-                            }}
-                            showWeekdayLabels
-                            renderBlock={(block: any, activity: any) => 
-                                React.cloneElement(block, {
-                                    'data-tooltip-id': 'react-tooltip',
-                                    'data-tooltip-content': `${activity.count} contributions on ${activity.date}`,
-                                    style: { ...block.props.style, borderRadius: '4px' } // Rounder blocks
-                                })
-                            }
-                        />
-                    </div>
-                    <ReactTooltip id="react-tooltip" className="!bg-foreground !text-background !px-3 !py-1 !content-xs !rounded-md !shadow-xl" />
+                <div className="w-full overflow-x-scroll pb-4 touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    {contributionData.length > 0 ? (
+                        <div className="min-w-[700px] flex justify-center py-4 px-2">
+                             <ActivityCalendar
+                                data={contributionData}
+                                colorScheme={theme === 'dark' ? 'dark' : 'light'}
+                                blockSize={12}
+                                blockMargin={4}
+                                fontSize={12}
+                                theme={{
+                                    light: ['#000000', '#c7d2fe', '#818cf8', '#4f46e5', '#312e81'],
+                                    dark: ['#000000', '#1e3a8a', '#3b82f6', '#60a5fa', '#93c5fd'],
+                                }}
+                                showWeekdayLabels
+                                hideTotalCount
+                                renderBlock={(block: any, activity: any) => 
+                                    React.cloneElement(block, {
+                                        'data-tooltip-id': 'react-tooltip',
+                                        'data-tooltip-content': `${activity.count} contributions on ${activity.date}`,
+                                        style: { 
+                                            ...block.props.style, 
+                                            borderRadius: '2px',
+                                            stroke: theme === 'dark' ? '#ffffff10' : 'transparent',
+                                            strokeWidth: 1,
+                                            fill: activity.count === 0 ? '#000000' : undefined 
+                                        } 
+                                    })
+                                }
+                            />
+                        </div>
+                    ) : (
+                        <div className="h-40 flex items-center justify-center text-muted-foreground">
+                            No contribution data available.
+                        </div>
+                    )}
+                    <ReactTooltip id="react-tooltip" className="!bg-foreground !text-background !px-3 !py-1 !text-xs !rounded-md !shadow-xl !font-medium" />
                 </div>
             </div>
 
-            {/* Topic Details Modal */}
+            {/* Topic Details Modal - Restored */}
             {selectedTopic && (
                 <div 
                     className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300"
@@ -251,26 +266,29 @@ export default function ProfilePage() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="h-24 bg-gradient-to-r from-primary/10 to-transparent relative border-b border-border/50">
-                            <div className="absolute bottom-0 left-6 translate-y-1/2">
-                                <div className="h-16 w-16 rounded-xl bg-background border shadow-sm flex items-center justify-center">
-                                    <span className="text-2xl font-bold text-primary">{selectedTopic.name.charAt(0)}</span>
-                                </div>
-                            </div>
-                            <Button variant="ghost" size="icon" className="absolute top-4 right-4 rounded-full bg-background/50 hover:bg-background" onClick={() => setSelectedTopic(null)}>
+                            {/* Banner Decoration */}
+                            <div className="absolute inset-0 bg-grid-black/5 [mask-image:linear-gradient(0deg,white,transparent)] dark:bg-grid-white/5" />
+                            
+                            <Button variant="ghost" size="icon" className="absolute top-4 right-4 rounded-full bg-background/50 hover:bg-background z-10" onClick={() => setSelectedTopic(null)}>
                                 <X className="h-5 w-5" />
                             </Button>
                         </div>
 
-                        <div className="pt-10 p-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <h3 className="text-2xl font-bold">{selectedTopic.name}</h3>
-                                    <p className="text-muted-foreground text-sm">Competency Breakdown</p>
+                        <div className="p-6">
+                            <div className="flex items-start justify-between mb-6 gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-14 w-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                                        <span className="text-2xl font-bold text-primary">{selectedTopic.name.charAt(0)}</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-bold leading-none mb-1">{selectedTopic.name}</h3>
+                                        <p className="text-muted-foreground text-sm">Competency Breakdown</p>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-end shrink-0">
                                     <div className="flex items-center gap-1">
-                                        <span className="text-2xl font-bold text-primary">{selectedTopic.confidence}</span>
-                                        <span className="text-muted-foreground text-sm">/ 5</span>
+                                        <span className="text-xl font-bold text-primary">{selectedTopic.confidence}</span>
+                                        <span className="text-muted-foreground text-xs">/ 5</span>
                                     </div>
                                     <div className="flex">
                                         {[1, 2, 3, 4, 5].map((s) => (
@@ -283,12 +301,12 @@ export default function ProfilePage() {
                             <div className="space-y-3">
                                 {selectedTopic.subTopics?.map((sub, idx) => (
                                     <div key={idx} className="group flex items-center justify-between p-3 rounded-xl border border-border/40 hover:border-primary/30 hover:bg-muted/30 transition-all duration-200">
-                                        <span className="font-medium">{sub.name}</span>
+                                        <span className="font-medium text-sm md:text-base">{sub.name}</span>
                                         <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                                             {[1, 2, 3, 4, 5].map((star) => (
                                                 <Star 
                                                     key={star} 
-                                                    className={`h-4 w-4 transition-colors duration-300 ${
+                                                    className={`h-3.5 w-3.5 transition-colors duration-300 ${
                                                         star <= sub.confidence 
                                                             ? 'fill-yellow-500 text-yellow-500' 
                                                             : 'text-muted-foreground/20'
@@ -298,11 +316,6 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
                                 ))}
-                                {(!selectedTopic.subTopics || selectedTopic.subTopics.length === 0) && (
-                                    <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border">
-                                        No specific sub-topics tracked yet.
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>

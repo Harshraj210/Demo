@@ -37,6 +37,7 @@ function SidebarContent() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [activeAITool, setActiveAITool] = useState<AIToolType>(null);
+    const [isMobile, setIsMobile] = useState(false);
     
     // Combined hooks
     const { notes, createNote, copyNote, deleteNote } = useNotes();
@@ -53,8 +54,11 @@ function SidebarContent() {
     // Auto-collapse on mobile - Handle initial state
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth < 768) {
-                setIsCollapsed(true); // Default to collapsed on mobile (which means hidden in new logic)
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            
+            if (mobile) {
+                setIsCollapsed(true); // Default to collapsed on mobile
             } else {
                 setIsMobileMenuOpen(false); // Reset mobile state on desktop
             }
@@ -104,8 +108,7 @@ function SidebarContent() {
         mobileOpen: { x: 0, width: "16rem" },
         mobileClosed: { x: "-100%", width: "16rem" }
     };
-    
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
 
     return (
         <>
@@ -206,33 +209,9 @@ function SidebarContent() {
                         </Link>
                     </motion.div>
 
+
                     <nav className="space-y-1">
-                        {/* Notes List */}
-                        {notes.map(note => (
-                            <div
-                                key={note.id}
-                                onClick={() => handleOpenNote(note.id)}
-                                className={cn(
-                                    "flex items-center gap-2 px-2 py-1.5 text-sm rounded-md cursor-pointer group truncate transition-colors h-9",
-                                    activeNoteId === note.id ? "bg-accent text-accent-foreground font-medium" : "text-foreground hover:bg-accent/50"
-                                )}
-                                title={note.title}
-                            >
-                                <FileText className={cn("h-4 w-4 shrink-0", activeNoteId === note.id ? "text-primary" : "text-muted-foreground")} />
-                                {(!isCollapsed || isMobile) && (
-                                    <motion.span
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="ml-2 truncate"
-                                    >
-                                        {note.title || "Untitled"}
-                                    </motion.span>
-                                )}
-                            </div>
-                        ))}
-                        {notes.length === 0 && (!isCollapsed || isMobile) && (
-                            <div className="px-2 py-2 text-xs text-muted-foreground italic whitespace-nowrap">No notes yet.</div>
-                        )}
+                        {/* Notes List removed as per user request */}
                     </nav>
 
                     {/* Folders Link */}
@@ -261,41 +240,7 @@ function SidebarContent() {
                         </motion.div>
                     </div>
 
-                    {/* AI Tools Section - Restored */}
-                    <div className="px-3 mt-6">
-                        {(!isCollapsed || isMobile) && (
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-xs font-semibold text-muted-foreground mb-2 px-2 whitespace-nowrap"
-                            >
-                                AI TOOLS
-                            </motion.p>
-                        )}
-                        <nav className="space-y-1">
-                            <SidebarItem
-                                icon={Brain}
-                                label="Summarize"
-                                isCollapsed={isCollapsed && !isMobile}
-                                isActive={activeAITool === 'summarize'}
-                                onClick={() => toggleAITool('summarize')}
-                            />
-                            <SidebarItem
-                                icon={MessageSquare}
-                                label="Chat"
-                                isCollapsed={isCollapsed && !isMobile}
-                                isActive={activeAITool === 'chat'}
-                                onClick={() => toggleAITool('chat')}
-                            />
-                            <SidebarItem
-                                icon={BarChart}
-                                label="Quiz"
-                                isCollapsed={isCollapsed && !isMobile}
-                                isActive={activeAITool === 'quiz'}
-                                onClick={() => toggleAITool('quiz')}
-                            />
-                        </nav>
-                    </div>
+                    {/* AI Tools Section Removed as per user request */}
                 </div>
 
                 {/* User / Engagement */}
@@ -305,7 +250,10 @@ function SidebarContent() {
                     <div className="flex items-center justify-between">
                          <div 
                             className="flex items-center gap-3 flex-1"
-                            onClick={() => router.push('/profile')}
+                            onClick={() => {
+                                router.push('/profile');
+                                if (isMobile) setIsMobileMenuOpen(false);
+                            }}
                         >
                             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
                                 U
@@ -328,7 +276,10 @@ function SidebarContent() {
                                 variant="ghost" 
                                 size="icon" 
                                 className="h-8 w-8"
-                                onClick={() => setIsSettingsOpen(true)}
+                                onClick={() => {
+                                    setIsSettingsOpen(true);
+                                    if (isMobile) setIsMobileMenuOpen(false);
+                                }}
                                 title="Settings"
                             >
                                 <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground" />
