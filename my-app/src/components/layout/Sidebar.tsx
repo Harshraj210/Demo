@@ -38,16 +38,16 @@ function SidebarContent() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [activeAITool, setActiveAITool] = useState<AIToolType>(null);
     const [isMobile, setIsMobile] = useState(false);
-    
+
     // Combined hooks
     const { notes, createNote, copyNote, deleteNote } = useNotes();
     const { folders, createFolder, deleteFolder, updateFolder } = useFolders();
     const { theme, setTheme } = useTheme();
-    
+
     const router = useRouter();
     const params = useParams();
     const searchParams = useSearchParams();
-    
+
     const activeNoteId = params?.id as string;
     const [noteClipboard, setNoteClipboard] = useState<Note | null>(null);
 
@@ -56,7 +56,7 @@ function SidebarContent() {
         const handleResize = () => {
             const mobile = window.innerWidth < 768;
             setIsMobile(mobile);
-            
+
             if (mobile) {
                 setIsCollapsed(true); // Default to collapsed on mobile
             } else {
@@ -121,13 +121,13 @@ function SidebarContent() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                     >
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => setIsMobileMenuOpen(true)} 
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsMobileMenuOpen(true)}
                             className="bg-background/80 backdrop-blur-md shadow-sm border border-border h-10 w-10 rounded-full text-foreground/80 hover:text-foreground"
                         >
-                             <Menu className="h-5 w-5" />
+                            <Menu className="h-5 w-5" />
                         </Button>
                     </motion.div>
                 )}
@@ -170,13 +170,13 @@ function SidebarContent() {
                                 exit={{ opacity: 0 }}
                                 className="font-bold text-lg tracking-tight whitespace-nowrap"
                             >
-                                Markdown AI
+                                Klaer AI
                             </motion.span>
                         )}
                     </AnimatePresence>
-                    
+
                     {isMobile ? (
-                         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} className="shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} className="shrink-0">
                             <X className="h-5 w-5" />
                         </Button>
                     ) : (
@@ -215,30 +215,28 @@ function SidebarContent() {
                     </nav>
 
                     {/* Folders Link */}
-                     <div className="px-3 mt-2">
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="group relative"
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="group relative"
+                    >
+                        <Button
+                            variant={searchParams.get('view') === 'folders' || searchParams.get('folder') ? "secondary" : "ghost"}
+                            className={cn(
+                                "w-full justify-start h-10 px-4 transition-all duration-200",
+                                isCollapsed && !isMobile ? "justify-center px-0" : "",
+                                (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-foreground hover:bg-accent/50"
+                            )}
+                            onClick={() => {
+                                router.push('/?view=folders');
+                                if (isMobile) setIsMobileMenuOpen(false);
+                            }}
                         >
-                            <Button
-                                variant={searchParams.get('view') === 'folders' || searchParams.get('folder') ? "secondary" : "ghost"}
-                                className={cn(
-                                    "w-full justify-start h-10 px-4 transition-all duration-200",
-                                    isCollapsed && !isMobile ? "justify-center px-0" : "",
-                                    (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-foreground hover:bg-accent/50"
-                                )}
-                                onClick={() => {
-                                    router.push('/?view=folders');
-                                    if(isMobile) setIsMobileMenuOpen(false);
-                                }}
-                            >
-                                <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
-                                {(!isCollapsed || isMobile) && <span className="ml-3 font-medium">Folders</span>}
-                            </Button>
-                        </motion.div>
-                    </div>
+                            <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
+                            {(!isCollapsed || isMobile) && <span className="ml-3 font-medium">Folders</span>}
+                        </Button>
+                    </motion.div>
 
                     {/* AI Tools Section Removed as per user request */}
                 </div>
@@ -248,7 +246,7 @@ function SidebarContent() {
                     className="p-6 border-t border-border cursor-pointer hover:bg-muted/30 transition-colors"
                 >
                     <div className="flex items-center justify-between">
-                         <div 
+                        <div
                             className="flex items-center gap-3 flex-1"
                             onClick={() => {
                                 router.push('/profile');
@@ -271,10 +269,10 @@ function SidebarContent() {
                                 </motion.div>
                             )}
                         </div>
-                         {(!isCollapsed || isMobile) && (
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
+                        {(!isCollapsed || isMobile) && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
                                 className="h-8 w-8"
                                 onClick={() => {
                                     setIsSettingsOpen(true);
@@ -291,11 +289,11 @@ function SidebarContent() {
 
             {/* Settings Modal - Restored */}
             {isSettingsOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
                     onClick={() => setIsSettingsOpen(false)}
                 >
-                    <div 
+                    <div
                         className="bg-card border border-border rounded-xl shadow-lg w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -308,7 +306,7 @@ function SidebarContent() {
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
-                        
+
                         <div className="p-6 space-y-6">
                             <div className="space-y-3">
                                 <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Appearance</h4>
@@ -324,8 +322,8 @@ function SidebarContent() {
                                             </span>
                                         </div>
                                     </div>
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                                     >
@@ -333,7 +331,7 @@ function SidebarContent() {
                                     </Button>
                                 </div>
                             </div>
-                            
+
                             <div className="pt-2 text-center text-xs text-muted-foreground">
                                 <p>Version 0.1.0 • Built with Next.js 16</p>
                             </div>
@@ -347,6 +345,7 @@ function SidebarContent() {
                 isOpen={!!activeAITool}
                 activeTool={activeAITool}
                 onClose={() => setActiveAITool(null)}
+                onToolChange={setActiveAITool}
                 noteContent={getNoteContent()}
             />
         </>

@@ -89,12 +89,12 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                 }
             }}
             className={cn(
-                "group relative mb-4 rounded-xl border border-transparent bg-card/50 transition-all duration-200 outline-none",
+                "group relative mb-4 rounded-xl border border-transparent bg-card transition-all duration-200 outline-none",
                 // Hover state
                 "hover:border-border/50 hover:bg-card hover:shadow-sm",
                 // Active/Editing state
                 isActive && "border-primary/50 shadow-[0_0_20px_-3px_rgba(124,58,237,0.1)] ring-1 ring-primary/20 bg-card",
-                isEditing && "border-primary ring-1 ring-primary shadow-md bg-background"
+                isEditing && "border-primary ring-1 ring-primary shadow-md bg-card"
             )}
         >
             {/* Drag Handle & Actions - Visible on Hover/Focus - HIDDEN ON MOBILE */}
@@ -109,14 +109,14 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
 
             {/* Mobile Actions (Visible when active) */}
             <div className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 sm:hidden transition-opacity z-10">
-                 <button onClick={onDelete} className="p-1.5 bg-background shadow-sm border rounded-full text-destructive hover:bg-destructive/10">
+                <button onClick={onDelete} className="p-1.5 bg-background shadow-sm border rounded-full text-destructive hover:bg-destructive/10">
                     <Trash2 className="h-3 w-3" />
                 </button>
             </div>
 
             {/* Content Area */}
             <div
-                className="min-h-[3rem] p-4 w-full cursor-text"
+                className="min-h-12 p-4 w-full cursor-text"
                 onClick={(e) => {
                     e.stopPropagation();
                     handleFocus();
@@ -133,9 +133,9 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                             placeholder="Type markdown..."
                             autoFocus
                         />
-                         {/* Lint Warnings */}
-                         {lintErrors.length > 0 && (
-                            <motion.div 
+                        {/* Lint Warnings */}
+                        {lintErrors.length > 0 && (
+                            <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-2 text-xs text-yellow-600 dark:text-yellow-400"
@@ -175,7 +175,7 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
 
             {/* AI Action Hint */}
             {isEditing && (
-                <motion.div 
+                <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="absolute right-2 top-2"
