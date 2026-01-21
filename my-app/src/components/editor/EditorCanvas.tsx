@@ -115,6 +115,28 @@ export function EditorCanvas({ note, onUpdate }: EditorCanvasProps) {
                 e.preventDefault();
                 handleRedo();
             }
+
+            // New Shortcuts (when not editing a cell)
+            const isEditing = document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.tagName === 'INPUT';
+
+            if (!isEditing) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    addCell();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+                    e.preventDefault();
+                    handleCut();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                    e.preventDefault();
+                    handleCopy();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                    e.preventDefault();
+                    handlePaste();
+                }
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
@@ -243,9 +265,9 @@ export function EditorCanvas({ note, onUpdate }: EditorCanvasProps) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto flex flex-col h-full bg-background">
+        <div className="max-w-4xl mx-auto flex flex-col h-full bg-transparent">
             {/* Menu Bar */}
-            <div className="flex items-center px-4 py-1 border-b text-sm bg-muted/20 shrink-0">
+            <div className="flex items-center px-4 py-1 border-b text-sm bg-secondary/50 backdrop-blur-md shrink-0">
                 <div className="flex items-center gap-1">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -307,7 +329,7 @@ export function EditorCanvas({ note, onUpdate }: EditorCanvasProps) {
             </div>
 
             {/* Toolbar */}
-            <div className="flex items-center px-4 py-2 border-b bg-background gap-1 shrink-0 overflow-x-auto">
+            <div className="flex items-center px-4 py-2 border-b bg-background/40 backdrop-blur-md gap-1 shrink-0 overflow-x-auto">
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleSave} title="Save (Ctrl+S)">
                     <Save className="h-4 w-4" />
                 </Button>

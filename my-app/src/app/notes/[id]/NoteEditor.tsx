@@ -41,9 +41,9 @@ export function NoteEditor({ id }: { id: string }) {
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden bg-transparent">
             {/* Top Bar */}
-            <div className="h-14 border-b flex items-center justify-between px-4 bg-background shrink-0 z-10">
+            <div className="h-14 border-b flex items-center justify-between px-4 bg-background/40 backdrop-blur-md shrink-0 z-10">
                 <div className="font-medium truncate max-w-md" title={note.title}>
                     {note.title || "Untitled Note"}
                 </div>

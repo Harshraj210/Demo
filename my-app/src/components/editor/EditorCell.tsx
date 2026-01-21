@@ -84,7 +84,7 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
             }}
             className={cn(
                 "group relative mb-4 rounded-lg border border-transparent bg-card transition-all hover:border-border hover:shadow-sm outline-none",
-                isActive && "border-primary shadow-[0_0_15px_-3px_rgba(99,102,241,0.4)] dark:shadow-[0_0_20px_-5px_rgba(129,140,248,0.5)] ring-1 ring-primary/20",
+                isActive && "border-primary shadow-[0_0_20px_-3px_rgba(124,58,237,0.4)] dark:shadow-[0_0_25px_-5px_rgba(139,92,246,0.5)] ring-1 ring-primary/20",
                 isEditing && "border-primary ring-1 ring-primary shadow-md"
             )}
         >

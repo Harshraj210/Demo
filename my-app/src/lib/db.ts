@@ -69,6 +69,7 @@ export const db = {
     folders: {
         getAll: async () => (await getDB()).getAll('folders'),
         put: async (folder: Folder) => (await getDB()).put('folders', folder),
+        delete: async (id: string) => (await getDB()).delete('folders', id),
     },
     user: {
         get: async () => (await getDB()).get('user', 'current-user'),
