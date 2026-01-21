@@ -54,11 +54,11 @@ export function AISidebarPanel({ isOpen, activeTool, onClose, noteContent }: AIS
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-[350px] border-l bg-background/60 backdrop-blur-xl flex flex-col h-full shrink-0 shadow-sm"
+            className="fixed inset-0 z-50 w-full bg-background/95 backdrop-blur-xl flex flex-col h-full shadow-2xl md:relative md:w-[350px] md:inset-auto md:border-l md:shadow-none md:z-auto"
         >
-            <div className="p-4 border-b flex items-center justify-between bg-muted/20">
+            <div className="p-4 border-b flex items-center justify-between bg-muted/20 shrink-0">
                 <h3 className="font-semibold text-sm">{getTitle()}</h3>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onClose}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={onClose}>
                     <X className="h-4 w-4" />
                 </Button>
             </div>

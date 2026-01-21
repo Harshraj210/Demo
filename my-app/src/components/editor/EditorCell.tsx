@@ -13,6 +13,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { LintService, LintError } from '@/lib/lint-service';
 
+import { motion } from 'framer-motion';
+
 interface EditorCellProps {
     cell: Cell;
     onChange: (content: string) => void;
@@ -26,6 +28,7 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
     const [lintErrors, setLintErrors] = useState<LintError[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+    // ... (rest of hook logic remains same until return)
     const {
         attributes,
         listeners,
@@ -68,7 +71,10 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
     };
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             ref={setNodeRef}
             style={style}
             role="button"
@@ -83,24 +89,34 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                 }
             }}
             className={cn(
-                "group relative mb-4 rounded-lg border border-transparent bg-card transition-all hover:border-border hover:shadow-sm outline-none",
-                isActive && "border-primary shadow-[0_0_20px_-3px_rgba(124,58,237,0.4)] dark:shadow-[0_0_25px_-5px_rgba(139,92,246,0.5)] ring-1 ring-primary/20",
-                isEditing && "border-primary ring-1 ring-primary shadow-md"
+                "group relative mb-4 rounded-xl border border-transparent bg-card/50 transition-all duration-200 outline-none",
+                // Hover state
+                "hover:border-border/50 hover:bg-card hover:shadow-sm",
+                // Active/Editing state
+                isActive && "border-primary/50 shadow-[0_0_20px_-3px_rgba(124,58,237,0.1)] ring-1 ring-primary/20 bg-card",
+                isEditing && "border-primary ring-1 ring-primary shadow-md bg-background"
             )}
         >
-            {/* Drag Handle & Actions - Visible on Hover/Focus */}
-            <div className="absolute -left-10 top-2 opacity-0 group-hover:opacity-100 flex flex-col gap-1 transition-opacity">
-                <div {...attributes} {...listeners} className="cursor-grab p-1 hover:bg-muted rounded">
-                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+            {/* Drag Handle & Actions - Visible on Hover/Focus - HIDDEN ON MOBILE */}
+            <div className="absolute -left-10 top-2 opacity-0 group-hover:opacity-100 hidden sm:flex flex-col gap-1 transition-opacity duration-200">
+                <div {...attributes} {...listeners} className="cursor-grab p-1.5 hover:bg-muted rounded-md transition-colors active:cursor-grabbing">
+                    <GripVertical className="h-4 w-4 text-muted-foreground/70" />
                 </div>
-                <button onClick={onDelete} className="p-1 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded">
+                <button onClick={onDelete} className="p-1.5 hover:bg-destructive/10 text-muted-foreground/70 hover:text-destructive rounded-md transition-colors">
                     <Trash2 className="h-4 w-4" />
+                </button>
+            </div>
+
+            {/* Mobile Actions (Visible when active) */}
+            <div className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 sm:hidden transition-opacity z-10">
+                 <button onClick={onDelete} className="p-1.5 bg-background shadow-sm border rounded-full text-destructive hover:bg-destructive/10">
+                    <Trash2 className="h-3 w-3" />
                 </button>
             </div>
 
             {/* Content Area */}
             <div
-                className="min-h-12 p-4 w-full cursor-text"
+                className="min-h-[3rem] p-4 w-full cursor-text"
                 onClick={(e) => {
                     e.stopPropagation();
                     handleFocus();
@@ -117,12 +133,16 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                             placeholder="Type markdown..."
                             autoFocus
                         />
-                        {/* Lint Warnings */}
-                        {lintErrors.length > 0 && (
-                            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-md p-2 text-xs text-yellow-800 dark:text-yellow-200">
+                         {/* Lint Warnings */}
+                         {lintErrors.length > 0 && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-2 text-xs text-yellow-600 dark:text-yellow-400"
+                            >
                                 <div className="flex items-center gap-1.5 font-semibold mb-1">
                                     <AlertCircle className="h-3 w-3" />
-                                    <span>Writing Suggestions</span>
+                                    <span>Suggestion</span>
                                 </div>
                                 <ul className="pl-5 list-disc space-y-0.5">
                                     {lintErrors.slice(0, 3).map((err) => (
@@ -131,11 +151,8 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                                             {err.suggestion && <span className="font-medium ml-1">→ {err.suggestion}</span>}
                                         </li>
                                     ))}
-                                    {lintErrors.length > 3 && (
-                                        <li className="list-none opacity-70 italic">+{lintErrors.length - 3} more...</li>
-                                    )}
                                 </ul>
-                            </div>
+                            </motion.div>
                         )}
                     </div>
                 ) : (
@@ -148,7 +165,9 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                                 {cell.content}
                             </ReactMarkdown>
                         ) : (
-                            <span className="text-muted-foreground italic">Empty cell. Click to edit.</span>
+                            <span className="text-muted-foreground/40 italic text-sm select-none">
+                                Click to edit...
+                            </span>
                         )}
                     </div>
                 )}
@@ -156,12 +175,16 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
 
             {/* AI Action Hint */}
             {isEditing && (
-                <div className="absolute right-2 top-2">
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" title="AI Assist">
+                <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute right-2 top-2"
+                >
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" title="AI Assist">
                         <Sparkles className="h-3 w-3" />
                     </Button>
-                </div>
+                </motion.div>
             )}
-        </div>
+        </motion.div>
     );
 }

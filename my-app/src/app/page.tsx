@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useNotes } from '@/hooks/useNotes';
 import { useFolders } from '@/hooks/useFolders';
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from '@/components/ui/button';
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const view = searchParams.get('view');
@@ -142,7 +142,7 @@ export default function Home() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-full pb-32 relative">
       <header className="mb-8 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 pl-12 md:pl-0 transition-[padding]">
             {isFolderDetailView && (
               <Button
                 variant="ghost"
@@ -480,6 +480,14 @@ export default function Home() {
       </motion.div>
     </div>
   );
+}
+
+export default function Home() {
+    return (
+        <React.Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+            <HomeContent />
+        </React.Suspense>
+    );
 }
 
 

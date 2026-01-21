@@ -43,36 +43,46 @@ export function NoteEditor({ id }: { id: string }) {
     return (
         <div className="flex flex-col h-full overflow-hidden bg-transparent">
             {/* Top Bar */}
-            <div className="h-14 border-b flex items-center justify-between px-4 bg-background/40 backdrop-blur-md shrink-0 z-10">
-                <div className="font-medium truncate max-w-md" title={note.title}>
+            <div className="h-14 border-b flex items-center justify-between px-4 bg-background/40 backdrop-blur-md shrink-0 z-10 transition-all">
+                {/* Title - Added left padding on mobile to avoid overlap with menu button */}
+                <div className="font-medium truncate max-w-md pl-12 md:pl-0 transition-[padding]" title={note.title}>
                     {note.title || "Untitled Note"}
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center bg-muted/50 rounded-lg p-1">
+                    <div className="flex items-center bg-muted/50 rounded-lg p-1 gap-1">
                         <Button
-                            variant="ghost"
+                            variant={activeTool === 'chat' ? "secondary" : "ghost"}
                             size="sm"
                             onClick={() => toggleTool('chat')}
-                            className={cn("h-8 gap-2", activeTool === 'chat' && "bg-background shadow-sm text-primary")}
+                            className={cn(
+                                "h-8 gap-2 transition-all", 
+                                activeTool === 'chat' ? "bg-background shadow-sm text-primary font-medium" : "text-muted-foreground hover:text-foreground"
+                            )}
                         >
                             <MessageSquare className="h-4 w-4" />
                             <span className="hidden sm:inline">Chat</span>
                         </Button>
                         <Button
-                            variant="ghost"
+                            variant={activeTool === 'summarize' ? "secondary" : "ghost"}
                             size="sm"
                             onClick={() => toggleTool('summarize')}
-                            className={cn("h-8 gap-2", activeTool === 'summarize' && "bg-background shadow-sm text-primary")}
+                            className={cn(
+                                "h-8 gap-2 transition-all",
+                                activeTool === 'summarize' ? "bg-background shadow-sm text-primary font-medium" : "text-muted-foreground hover:text-foreground"
+                            )}
                         >
                             <Brain className="h-4 w-4" />
                             <span className="hidden sm:inline">Summarize</span>
                         </Button>
                         <Button
-                            variant="ghost"
+                            variant={activeTool === 'quiz' ? "secondary" : "ghost"}
                             size="sm"
                             onClick={() => toggleTool('quiz')}
-                            className={cn("h-8 gap-2", activeTool === 'quiz' && "bg-background shadow-sm text-primary")}
+                            className={cn(
+                                "h-8 gap-2 transition-all",
+                                activeTool === 'quiz' ? "bg-background shadow-sm text-primary font-medium" : "text-muted-foreground hover:text-foreground"
+                            )}
                         >
                             <BarChart className="h-4 w-4" />
                             <span className="hidden sm:inline">Quiz</span>
@@ -86,8 +96,9 @@ export function NoteEditor({ id }: { id: string }) {
                         size="icon"
                         onClick={() => setActiveTool(activeTool ? null : 'chat')}
                         title={activeTool ? "Close AI Panel" : "Open AI Panel"}
+                        className={cn("transition-transform duration-200", activeTool && "rotate-180")}
                     >
-                        {activeTool ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+                        <PanelRightOpen className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
