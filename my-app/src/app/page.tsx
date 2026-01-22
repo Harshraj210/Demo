@@ -47,42 +47,50 @@ function HomeContent() {
 
   // Determine the context for useNotes: undefined for All (Global Search or Recent), folderId for specific folder
   const notesContextId = (isRecentView || debouncedSearchQuery) ? undefined : folderId;
-  const { notes, createNote, deleteNote, copyNote, loading } = useNotes(notesContextId);
-  const { folders, createFolder, deleteFolder } = useFolders();
+  const { notes, createNote, deleteNote, copyNote, loading: notesLoading } = useNotes(notesContextId);
+  const { folders, createFolder, deleteFolder, loading: foldersLoading } = useFolders();
+
+  const isLoading = notesLoading || foldersLoading;
 
   const currentFolder = folders.find(f => f.id === folderId);
 
   // Filter and Sort notes and folders
   const filteredNotes = useMemo(() => {
+    if (!notes) return [];
     let result = [...notes];
     if (debouncedSearchQuery) {
       const query = debouncedSearchQuery.toLowerCase();
       result = result.filter(n =>
-        n.title.toLowerCase().includes(query) ||
-        n.cells.some(c => c.content?.toLowerCase().includes(query))
+        n.title?.toLowerCase().includes(query) ||
+        n.cells?.some(c => c.content?.toLowerCase().includes(query))
       );
     }
     if (sortOption === 'alphabetical') {
-      result.sort((a, b) => a.title.localeCompare(b.title));
+      result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
     } else if (sortOption === 'number') {
       result.sort((a, b) => {
-        const sizeA = a.cells.reduce((acc, c) => acc + (c.content?.length || 0), 0);
-        const sizeB = b.cells.reduce((acc, c) => acc + (c.content?.length || 0), 0);
+        const sizeA = a.cells?.reduce((acc, c) => acc + (c.content?.length || 0), 0) || 0;
+        const sizeB = b.cells?.reduce((acc, c) => acc + (c.content?.length || 0), 0) || 0;
         return sizeB - sizeA; // Descending size
       });
     } else {
-      result.sort((a, b) => b.createdAt - a.createdAt);
+      result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
     return result;
   }, [notes, debouncedSearchQuery, sortOption]);
 
   const filteredFolders = useMemo(() => {
+    if (!folders) return [];
     let result = [...folders];
     if (debouncedSearchQuery) {
-      result = result.filter(f => f.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
+      result = result.filter(f => f.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
     }
     if (sortOption === 'alphabetical') {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+      result.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+    // Default sort for folders (Newest first if not alpha)
+    if (sortOption !== 'alphabetical') {
+       result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
     return result;
   }, [folders, debouncedSearchQuery, sortOption]);
@@ -243,16 +251,12 @@ function HomeContent() {
           </div>
         </header>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
         ) : (
-          <motion.div
-            key={view || folderId || 'recent'}
-            variants={container}
-            initial="hidden"
-            animate="show"
+          <div
             className={cn(
               "grid gap-4 md:gap-6",
               gridSize === 'small' && "grid-cols-2 xs:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8",
@@ -261,18 +265,16 @@ function HomeContent() {
             )}
           >
             {/* Folders View Grid */}
-            {isFoldersView && (
+            {isFoldersView && filteredFolders && (
               <>
                 {/* Inline Folder Creation Removed - Direct creation used instead */}
 
                 {filteredFolders.map(folder => (
-                  <motion.div
-                    variants={item}
+                  folder && folder.id ? (
+                  <div
                     key={folder.id}
                     onClick={() => router.push(`/?folder=${folder.id}`)}
                     className="flex flex-col gap-3 group"
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <div className="aspect-4/5 rounded-2xl bg-white/3 border border-cyan-400/30 p-4 hover:border-cyan-400/60 hover:bg-white/5 transition-all duration-300 cursor-pointer relative shadow-[0_0_15px_rgba(34,211,238,0.1)] overflow-hidden flex flex-col items-center justify-center hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]">
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -302,7 +304,8 @@ function HomeContent() {
                       <h3 className="font-medium text-sm text-foreground/90 truncate">{folder.name}</h3>
                       <p className="text-xs text-muted-foreground/60 mt-0.5">Folder</p>
                     </div>
-                  </motion.div>
+                  </div>
+                  ) : null
                 ))}
               </>
             )}
@@ -312,13 +315,10 @@ function HomeContent() {
               <>
                 {/* Inline Note Creation Removed - Direct creation used instead */}
                 {filteredNotes.map(note => (
-                  <motion.div
-                    variants={item}
+                  <div
                     key={note.id}
                     onClick={() => handleOpenNote(note.id)}
                     className="flex flex-col gap-3 group animate-in fade-in zoom-in duration-300"
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <div className="aspect-4/5 rounded-2xl bg-white/3 border border-cyan-400/30 p-4 hover:border-cyan-400/60 hover:bg-white/5 transition-all cursor-pointer relative shadow-[0_0_15px_rgba(34,211,238,0.1)] overflow-hidden hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]">
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -359,7 +359,7 @@ function HomeContent() {
                         {format(note.createdAt, 'd MMM')}
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </>
             )}
@@ -377,7 +377,7 @@ function HomeContent() {
                 <p>No folders created</p>
               </div>
             )}
-          </motion.div>
+          </div>
         )}
 
         {/* Context-Aware FAB */}

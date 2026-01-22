@@ -19,27 +19,57 @@ interface MarkdownDB extends DBSchema {
 }
 
 const DB_NAME = 'markdown-notes-db';
-const DB_VERSION = 1;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBPDatabase<MarkdownDB>> | null = null;
 
 export const getDB = () => {
     if (!dbPromise) {
         dbPromise = openDB<MarkdownDB>(DB_NAME, DB_VERSION, {
-            upgrade(db) {
+            upgrade(db, oldVersion, newVersion, transaction) {
+                // Notes Store
                 if (!db.objectStoreNames.contains('notes')) {
                     const notesStore = db.createObjectStore('notes', { keyPath: 'id' });
                     notesStore.createIndex('folderId', 'folderId');
                     notesStore.createIndex('updatedAt', 'updatedAt');
+                } else {
+                    const notesStore = transaction.objectStore('notes');
+                    if (!notesStore.indexNames.contains('folderId')) {
+                        notesStore.createIndex('folderId', 'folderId');
+                    }
+                    if (!notesStore.indexNames.contains('updatedAt')) {
+                        notesStore.createIndex('updatedAt', 'updatedAt');
+                    }
                 }
+
+                // Folders Store
                 if (!db.objectStoreNames.contains('folders')) {
                     const foldersStore = db.createObjectStore('folders', { keyPath: 'id' });
                     foldersStore.createIndex('parentId', 'parentId');
+                } else {
+                    const foldersStore = transaction.objectStore('folders');
+                    if (!foldersStore.indexNames.contains('parentId')) {
+                        foldersStore.createIndex('parentId', 'parentId');
+                    }
                 }
+
+                // User Store
                 if (!db.objectStoreNames.contains('user')) {
                     db.createObjectStore('user', { keyPath: 'id' });
                 }
             },
+            blocked() {
+                console.error("Database upgrade blocked. Please close other tabs of this application.");
+            },
+            blocking() {
+                console.warn("Database blocking subsequent connections. Closing...");
+                dbPromise?.then(db => db.close());
+                dbPromise = null;
+            },
+            terminated() {
+                 console.error("Database connection terminated.");
+                 dbPromise = null;
+            }
         });
     }
     return dbPromise;
@@ -53,17 +83,13 @@ export const db = {
         put: async (note: Note) => (await getDB()).put('notes', note),
         delete: async (id: string) => (await getDB()).delete('notes', id),
         getByFolder: async (folderId: string | null) => {
-            // Since folderId can be null, we need to handle it. 
-            // IDB indexes might not index nulls reliably depending on impl, but usually fine. 
-            // Alternatively, we filter manually for small datasets or use a specific string for root.
-            // For now, let's assume we can query.
-            if (folderId === null) {
-                // Get all and filter? Or use a special "root" index?
-                // "root" folderId convention might be better, but let's try raw getAll (small scale).
-                const all = await (await getDB()).getAll('notes');
-                return all.filter(n => n.folderId === null);
+            const dbInstance = await getDB();
+            // Robust fallback: Get all and filter in memory to ignore missing indexes
+            const all = await dbInstance.getAll('notes');
+            if (!folderId) {
+                return all.filter(n => !n.folderId);
             }
-            return (await getDB()).getAllFromIndex('notes', 'folderId', folderId);
+            return all.filter(n => n.folderId === folderId);
         }
     },
     folders: {

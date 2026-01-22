@@ -40,7 +40,7 @@ export function useNotes(currentFolderId?: string | null) {
         const newNote: Note = {
             id: uuidv4(),
             title,
-            folderId: targetFolderId !== undefined ? targetFolderId : (currentFolderId ?? null),
+            folderId: (targetFolderId !== undefined ? targetFolderId : currentFolderId) || null,
             cells: [{ id: uuidv4(), type: 'markdown', content: '' }],
             createdAt: Date.now(),
             updatedAt: Date.now(),
