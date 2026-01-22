@@ -20,9 +20,9 @@ import { USER_PROFILE, TOPICS, USER_STATS, generateContributionData } from '@/li
 
 // Dynamically import ActivityCalendar to avoid SSR issues and type errors
 const ActivityCalendar = dynamic(
-    () => import('react-activity-calendar').then((mod: any) => mod.ActivityCalendar),
+    () => import('react-activity-calendar').then((mod) => mod.ActivityCalendar),
     { ssr: false }
-) as any;
+) as React.ElementType;
 
 type Activity = {
     date: string;
