@@ -3,12 +3,17 @@
 import { useState } from 'react';
 import { useNote } from '@/hooks/useNote';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
-import { Loader2, Brain, MessageSquare, BarChart, PanelRightClose, PanelRightOpen, ArrowLeft } from 'lucide-react';
+import { Loader2, Brain, MessageSquare, BarChart, PanelRightClose, PanelRightOpen, ArrowLeft, Type, Palette, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AISidebarPanel, AIToolType } from '@/components/ai/AISidebarPanel';
 import { AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useRouter } from 'next/navigation';
 
 export function NoteEditor({ id }: { id: string }) {
@@ -48,10 +53,10 @@ export function NoteEditor({ id }: { id: string }) {
             {/* Top Bar */}
             <div className="h-14 border-b flex items-center justify-between px-4 bg-background/40 backdrop-blur-md shrink-0 z-10 transition-all">
                 <div className="flex items-center gap-4">
-                     <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => router.push('/')} 
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.push('/')}
                         className="h-9 w-9 -ml-2 text-muted-foreground hover:text-foreground"
                     >
                         <ArrowLeft className="h-5 w-5" />
@@ -62,6 +67,75 @@ export function NoteEditor({ id }: { id: string }) {
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Font Size */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                                <Type className="h-4 w-4 mr-1" />
+                                Size
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '1')}>Small</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '3')}>Normal</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '5')}>Large</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '7')}>Extra Large</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Font Color */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                                <Palette className="h-4 w-4 mr-1" />
+                                Color
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#ffffff')}>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#ffffff' }}></div>
+                                    White
+                                </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#00d9ff')}>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#00d9ff' }}></div>
+                                    Cyan
+                                </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#888888')}>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#888888' }}></div>
+                                    Gray
+                                </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#ef4444')}>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#ef4444' }}></div>
+                                    Red
+                                </div>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Font Family */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                                <FileText className="h-4 w-4 mr-1" />
+                                Font
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Arial')}>Arial</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Georgia')}>Georgia</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Courier New')}>Courier New</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Times New Roman')}>Times New Roman</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Verdana')}>Verdana</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <div className="w-px h-6 bg-border mx-1" />
 
                     <Button

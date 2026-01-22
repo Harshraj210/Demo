@@ -2,15 +2,20 @@
 
 import React from 'react';
 import { Sidebar } from './Sidebar';
-
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+    const isNotePage = pathname.startsWith('/notes/');
+
     return (
         <div className="flex h-screen w-full bg-background overflow-hidden">
-            <React.Suspense fallback={<div className="w-16 h-full bg-background border-r border-border" />}>
-                <Sidebar />
-            </React.Suspense>
+            {!isNotePage && (
+                <React.Suspense fallback={<div className="w-16 h-full bg-background border-r border-border" />}>
+                    <Sidebar />
+                </React.Suspense>
+            )}
             <main className="flex-1 h-full overflow-hidden flex flex-col relative w-full">
                 <AnimatePresence mode="wait">
                     <motion.div

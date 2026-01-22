@@ -33,7 +33,10 @@ import {
     ChevronDown,
     File as FileIcon,
     Settings,
-    MoreVertical
+    MoreVertical,
+    Type,
+    Palette,
+    FileText
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -293,6 +296,270 @@ export function EditorCanvas({ note, onUpdate }: EditorCanvasProps) {
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleMove('down')} disabled={!selectedCellId} title="Move Cell Down">
                     <ChevronDown className="h-4 w-4" />
                 </Button>
+
+                <div className="w-px h-4 bg-border mx-1" />
+
+                {/* Font Size */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Font Size">
+                            <Type className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-size: 12px">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Small</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-size: 16px">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Normal</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-size: 20px">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Large</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-size: 24px">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Extra Large</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+
+                {/* Font Color - Inline Swatches */}
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="color: #ffffff">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}
+                        className="h-6 w-6 rounded-full border-2 border-border hover:scale-110 transition-transform cursor-pointer"
+                        style={{ backgroundColor: '#ffffff' }}
+                        title="White"
+                    />
+                    <button
+                        onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="color: #00d9ff">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}
+                        className="h-6 w-6 rounded-full border-2 border-border hover:scale-110 transition-transform cursor-pointer"
+                        style={{ backgroundColor: '#00d9ff' }}
+                        title="Cyan"
+                    />
+                    <button
+                        onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="color: #fbbf24">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}
+                        className="h-6 w-6 rounded-full border-2 border-border hover:scale-110 transition-transform cursor-pointer"
+                        style={{ backgroundColor: '#fbbf24' }}
+                        title="Yellow"
+                    />
+                    <button
+                        onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="color: #ef4444">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}
+                        className="h-6 w-6 rounded-full border-2 border-border hover:scale-110 transition-transform cursor-pointer"
+                        style={{ backgroundColor: '#ef4444' }}
+                        title="Red"
+                    />
+                    <button
+                        onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="color: #888888">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}
+                        className="h-6 w-6 rounded-full border-2 border-border hover:scale-110 transition-transform cursor-pointer"
+                        style={{ backgroundColor: '#888888' }}
+                        title="Gray"
+                    />
+                </div>
+
+                {/* Font Family */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="Font Family">
+                            <FileText className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-family: Arial">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Arial</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-family: Georgia">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Georgia</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-family: 'Courier New'">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Courier New</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-family: 'Times New Roman'">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Times New Roman</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            const activeElement = document.activeElement as HTMLTextAreaElement;
+                            if (activeElement && activeElement.tagName === 'TEXTAREA') {
+                                const start = activeElement.selectionStart;
+                                const end = activeElement.selectionEnd;
+                                const selectedText = activeElement.value.substring(start, end);
+                                if (selectedText) {
+                                    const wrappedText = `<span style="font-family: Verdana">${selectedText}</span>`;
+                                    const newValue = activeElement.value.substring(0, start) + wrappedText + activeElement.value.substring(end);
+                                    const event = new Event('input', { bubbles: true });
+                                    activeElement.value = newValue;
+                                    activeElement.dispatchEvent(event);
+                                }
+                            }
+                        }}>Verdana</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <div className="flex-1 overflow-y-auto w-full">

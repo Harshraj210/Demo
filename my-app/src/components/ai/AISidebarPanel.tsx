@@ -64,28 +64,28 @@ export function AISidebarPanel({ isOpen, activeTool, onClose, onToolChange, note
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
-                
-                <div className="flex bg-muted rounded-lg p-1">
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={`flex-1 h-7 text-xs ${activeTool === 'chat' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+
+                <div className="flex bg-muted rounded-lg p-1 gap-1">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`flex-1 h-7 text-xs border ${activeTool === 'chat' ? 'bg-background shadow-sm text-foreground border-border' : 'text-muted-foreground border-transparent'}`}
                         onClick={() => onToolChange('chat')}
                     >
                         Chat
                     </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={`flex-1 h-7 text-xs ${activeTool === 'summarize' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`flex-1 h-7 text-xs border ${activeTool === 'summarize' ? 'bg-background shadow-sm text-foreground border-border' : 'text-muted-foreground border-transparent'}`}
                         onClick={() => onToolChange('summarize')}
                     >
                         Summarize
                     </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={`flex-1 h-7 text-xs ${activeTool === 'quiz' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`flex-1 h-7 text-xs border ${activeTool === 'quiz' ? 'bg-background shadow-sm text-foreground border-border' : 'text-muted-foreground border-transparent'}`}
                         onClick={() => onToolChange('quiz')}
                     >
                         Quiz
