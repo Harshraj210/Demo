@@ -325,13 +325,13 @@ function HomeContent() {
                   <div
                     key={folder.id}
                     onClick={() => router.push(`/?folder=${folder.id}`)}
-                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300 shadow-sm hover:shadow-md"
+                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300 shadow-sm hover:shadow-md bg-zinc-200 dark:bg-zinc-800"
                   >
-                     {/* Moving Border Gradient - Adjusted for Visibility in Light/Dark */}
-                     <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-100" />
+                     {/* Moving Border Gradient - Hover Only */}
+                     <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                      {/* Inner Card Content */}
-                     <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#02040a] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#02040a]/90 transition-colors"> 
+                     <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#02040a] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#02040a] transition-colors"> 
                     
                       <div className="aspect-4/5 rounded-xl bg-transparent p-0 relative overflow-hidden flex flex-col items-center justify-center">
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -375,13 +375,13 @@ function HomeContent() {
                   <div
                     key={note.id}
                     onClick={() => handleOpenNote(note.id)}
-                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300 shadow-sm hover:shadow-md"
+                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300 shadow-sm hover:shadow-md bg-zinc-200 dark:bg-zinc-800"
                   >
-                    {/* Moving Border Gradient */}
-                    <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-100" />
+                    {/* Moving Border Gradient - Hover Only */}
+                    <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     {/* Inner Card Content */}
-                    <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#0b101b] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#0b101b]/90 transition-colors">
+                    <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#0b101b] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#0b101b] transition-colors">
                       <div className="aspect-4/5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 p-4 relative overflow-hidden">
                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                           <DropdownMenu>
