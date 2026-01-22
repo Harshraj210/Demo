@@ -1,174 +1,193 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNote } from '@/hooks/useNote';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
-import { Loader2, Brain, MessageSquare, BarChart, PanelRightClose, PanelRightOpen, ArrowLeft, Type, Palette, FileText } from 'lucide-react';
+import { Loader2, PanelRightOpen, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AISidebarPanel, AIToolType } from '@/components/ai/AISidebarPanel';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useRouter } from 'next/navigation';
 
 export function NoteEditor({ id }: { id: string }) {
     const router = useRouter();
     const { note, loading, saveNote } = useNote(id);
-    const [activeTool, setActiveTool] = useState<AIToolType>(null); // Default to closed
+    const [activeTool, setActiveTool] = useState<AIToolType>(null);
+    const [sidebarWidth, setSidebarWidth] = useState(400);
+    const [isResizing, setIsResizing] = useState(false);
+    const [zoomLevel, setZoomLevel] = useState(1);
+    const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
+
+    const startResizing = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsResizing(true);
+    }, []);
+
+    const stopResizing = useCallback(() => {
+        setIsResizing(false);
+    }, []);
+
+    const resize = useCallback(
+        (e: MouseEvent) => {
+            if (isResizing) {
+                const newWidth = document.body.clientWidth - e.clientX;
+                const maxAllowedWidth = document.body.clientWidth - 100;
+
+                if (newWidth > 320 && newWidth < Math.min(800, maxAllowedWidth)) {
+                    setSidebarWidth(newWidth);
+                }
+            }
+        },
+        [isResizing]
+    );
+
+    useEffect(() => {
+        if (isResizing) {
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+
+            window.addEventListener("mousemove", resize);
+            window.addEventListener("mouseup", stopResizing);
+        } else {
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        return () => {
+            window.removeEventListener("mousemove", resize);
+            window.removeEventListener("mouseup", stopResizing);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+    }, [isResizing, resize, stopResizing]);
+
+    const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 0.1, 2));
+    const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
 
     if (loading) {
         return (
-            <div className="flex h-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="flex h-full items-center justify-center bg-black text-white">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
             </div>
         );
     }
 
     if (!note) {
         return (
-            <div className="flex h-full items-center justify-center flex-col gap-4">
+            <div className="flex h-full items-center justify-center flex-col gap-4 bg-black text-white">
                 <h2 className="text-xl font-semibold">Note not found</h2>
-                <p className="text-muted-foreground">This note might have been deleted or does not exist.</p>
+                <p className="text-zinc-500">This note might have been deleted or does not exist.</p>
             </div>
         );
     }
 
     const noteContent = note.cells.map(c => c.content).join('\n\n');
 
-    const toggleTool = (tool: AIToolType) => {
-        if (activeTool === tool) {
-            setActiveTool(null);
-        } else {
-            setActiveTool(tool);
-        }
-    };
-
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-transparent">
+        <div className="flex flex-col h-full overflow-hidden bg-black select-none">
             {/* Top Bar */}
-            <div className="h-14 border-b flex items-center justify-between px-4 bg-background/40 backdrop-blur-md shrink-0 z-10 transition-all">
+            <div className="flex-none h-14 border-b border-zinc-900 flex items-center justify-between px-4 bg-black z-20">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => router.push('/')}
-                        className="h-9 w-9 -ml-2 text-muted-foreground hover:text-foreground"
+                        className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-zinc-900"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <div className="font-semibold text-lg truncate max-w-md transition-[padding]" title={note.title}>
+                    <div className="font-semibold text-lg text-white truncate max-w-md" title={note.title}>
                         {note.title || "Untitled Note"}
                     </div>
                 </div>
-
                 <div className="flex items-center gap-2">
-                    {/* Font Size */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
-                                <Type className="h-4 w-4 mr-1" />
-                                Size
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '1')}>Small</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '3')}>Normal</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '5')}>Large</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontSize', false, '7')}>Extra Large</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Font Color */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
-                                <Palette className="h-4 w-4 mr-1" />
-                                Color
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#ffffff')}>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#ffffff' }}></div>
-                                    White
-                                </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#00d9ff')}>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#00d9ff' }}></div>
-                                    Cyan
-                                </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#888888')}>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#888888' }}></div>
-                                    Gray
-                                </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('foreColor', false, '#ef4444')}>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded border" style={{ backgroundColor: '#ef4444' }}></div>
-                                    Red
-                                </div>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Font Family */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
-                                <FileText className="h-4 w-4 mr-1" />
-                                Font
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Arial')}>Arial</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Georgia')}>Georgia</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Courier New')}>Courier New</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Times New Roman')}>Times New Roman</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => document.execCommand('fontName', false, 'Verdana')}>Verdana</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <div className="w-px h-6 bg-border mx-1" />
-
                     <Button
                         variant="ghost"
-                        size="icon"
                         onClick={() => setActiveTool(activeTool ? null : 'chat')}
-                        title={activeTool ? "Close AI Panel" : "Open AI Panel"}
-                        className={cn("transition-transform duration-200", activeTool && "rotate-180")}
+                        className={cn("text-zinc-400 hover:text-white hover:bg-zinc-900 gap-2", activeTool && "bg-zinc-900 text-white")}
                     >
-                        <PanelRightOpen className="h-4 w-4" />
+                        <PanelRightOpen className={cn("h-4 w-4 transition-transform", activeTool && "rotate-180")} />
+                        {activeTool ? "Close AI" : "Open AI"}
                     </Button>
                 </div>
             </div>
 
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden relative">
-                {/* Editor Area */}
-                <div className="flex-1 overflow-y-auto min-w-0">
-                    <div className="max-w-4xl mx-auto h-full">
-                        <EditorCanvas note={note} onUpdate={saveNote} />
+                {/* Editor Area with Status Bar */}
+                <div className="flex-1 flex flex-col min-w-0 bg-black relative">
+                    <div className="flex-1 overflow-y-auto scrollbar-none">
+                        {/* Correctly passing zoomLevel and onCursorMove */}
+                        <EditorCanvas
+                            note={note}
+                            onUpdate={saveNote}
+                            zoomLevel={zoomLevel}
+                            onCursorMove={(line, col) => setCursorPos({ line, col })}
+                        />
+                    </div>
+
+                    {/* Status Bar */}
+                    <div className="h-10 bg-black border-t border-white/20 flex items-center justify-end px-4 text-xs shrink-0 select-none z-30 gap-6">
+                        {/* Zoom Controls (First) */}
+                        <div className="flex items-center gap-3">
+                            <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={handleZoomOut}
+                                className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                            >
+                                <ZoomOut className="h-4 w-4" />
+                            </motion.button>
+
+                            <span className="min-w-[3ch] text-center font-medium text-zinc-300">
+                                {Math.round(zoomLevel * 100)}%
+                            </span>
+
+                            <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={handleZoomIn}
+                                className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                            >
+                                <ZoomIn className="h-4 w-4" />
+                            </motion.button>
+                        </div>
+
+                        {/* Cursor Info (Second) */}
+                        <div className="flex items-center text-zinc-400 font-mono">
+                            <span>Ln {cursorPos.line}, Col {cursorPos.col}</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Right Panel - AI Assistant */}
+                {/* Resizable Sidebar */}
                 <AnimatePresence mode="wait">
                     {activeTool && (
-                        <AISidebarPanel
-                            isOpen={true}
-                            activeTool={activeTool}
-                            onClose={() => setActiveTool(null)}
-                            onToolChange={setActiveTool}
-                            noteContent={noteContent}
-                        />
+                        <>
+                            <div
+                                className="w-1.5 bg-zinc-900 hover:bg-blue-500 cursor-col-resize z-50 transition-colors hidden md:block active:bg-blue-600"
+                                onMouseDown={startResizing}
+                            />
+                            <div
+                                style={{ width: sidebarWidth }}
+                                className="hidden md:flex flex-col border-l border-zinc-800 bg-black h-full shrink-0"
+                            >
+                                <AISidebarPanel
+                                    isOpen={true}
+                                    activeTool={activeTool}
+                                    onClose={() => setActiveTool(null)}
+                                    onToolChange={setActiveTool}
+                                    noteContent={noteContent}
+                                />
+                            </div>
+                            <div className="md:hidden absolute inset-0 z-50 bg-black">
+                                <AISidebarPanel
+                                    isOpen={true}
+                                    activeTool={activeTool}
+                                    onClose={() => setActiveTool(null)}
+                                    onToolChange={setActiveTool}
+                                    noteContent={noteContent}
+                                />
+                            </div>
+                        </>
                     )}
                 </AnimatePresence>
             </div>

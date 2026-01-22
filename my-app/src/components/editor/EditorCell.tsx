@@ -8,11 +8,8 @@ import 'katex/dist/katex.min.css';
 import { Cell } from '@/store/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Trash2, GripVertical, Sparkles, AlertCircle } from 'lucide-react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { Sparkles, AlertCircle } from 'lucide-react';
 import { LintService, LintError } from '@/lib/lint-service';
-
 import { motion } from 'framer-motion';
 
 interface EditorCellProps {
@@ -20,34 +17,19 @@ interface EditorCellProps {
     onChange: (content: string) => void;
     onDelete: () => void;
     onSelect?: () => void;
+    onCursorMove?: (line: number, col: number) => void;
     isActive?: boolean;
 }
 
-export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: EditorCellProps) {
-    const [isEditing, setIsEditing] = useState(false);
+export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, isActive }: EditorCellProps) {
+    const [isEditing, setIsEditing] = useState(true); // Default to true
     const [lintErrors, setLintErrors] = useState<LintError[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    // ... (rest of hook logic remains same until return)
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging
-    } = useSortable({ id: cell.id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-    };
 
     // Auto-resize textarea
     useEffect(() => {
         if (isEditing && textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = 'auto'; // Reset height
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
         }
     }, [cell.content, isEditing]);
@@ -55,68 +37,58 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
     // Run linting when editing
     useEffect(() => {
         if (isEditing) {
+            if (cell.content) {
+                const errors = LintService.lint(cell.content);
+                setLintErrors(errors);
+            }
             const timer = setTimeout(() => {
                 const errors = LintService.lint(cell.content);
                 setLintErrors(errors);
-            }, 500); // Debounce
+            }, 500);
             return () => clearTimeout(timer);
         } else {
-            setLintErrors([]); // Clear errors when not editing/view mode
+            setLintErrors([]);
         }
     }, [cell.content, isEditing]);
+
+    const updateCursorPosition = () => {
+        if (textareaRef.current && onCursorMove) {
+            const val = textareaRef.current.value;
+            const selectionStart = textareaRef.current.selectionStart;
+            const lines = val.substring(0, selectionStart).split("\n");
+            const line = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+            onCursorMove(line, col);
+        }
+    };
 
     const handleFocus = () => {
         setIsEditing(true);
         if (onSelect) onSelect();
+        updateCursorPosition();
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        onChange(e.target.value);
+        updateCursorPosition();
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            ref={setNodeRef}
-            style={style}
-            role="button"
-            tabIndex={0}
+        <div
+            className={cn(
+                "group relative mb-4 rounded-lg border bg-zinc-950 transition-all duration-200",
+                "border-zinc-800 hover:border-zinc-700",
+                // Focus state
+                "focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:shadow-lg focus-within:shadow-indigo-500/10",
+                isActive && "border-indigo-500 ring-1 ring-indigo-500 shadow-lg shadow-indigo-500/10"
+            )}
             onClick={() => {
                 if (onSelect) onSelect();
             }}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                    if (onSelect) onSelect();
-                    setIsEditing(true);
-                }
-            }}
-            className={cn(
-                "group relative mb-4 rounded-xl border border-transparent bg-card transition-all duration-200 outline-none",
-                // Hover state
-                "hover:border-border/50 hover:bg-card hover:shadow-sm",
-                // Active/Editing state
-                isActive && "border-primary/50 shadow-[0_0_20px_-3px_rgba(124,58,237,0.1)] ring-1 ring-primary/20 bg-card",
-                isEditing && "border-primary ring-1 ring-primary shadow-md bg-card"
-            )}
         >
-            {/* Drag Handle & Actions - Visible on Hover/Focus - HIDDEN ON MOBILE */}
-            <div className="absolute -left-10 top-2 opacity-0 group-hover:opacity-100 hidden sm:flex flex-col gap-1 transition-opacity duration-200">
-                <div {...attributes} {...listeners} className="cursor-grab p-1.5 hover:bg-muted rounded-md transition-colors active:cursor-grabbing">
-                    <GripVertical className="h-4 w-4 text-muted-foreground/70" />
-                </div>
-                <button onClick={onDelete} className="p-1.5 hover:bg-destructive/10 text-muted-foreground/70 hover:text-destructive rounded-md transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                </button>
-            </div>
-
-            {/* Mobile Actions (Visible when active) */}
-            <div className="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 sm:hidden transition-opacity z-10">
-                <button onClick={onDelete} className="p-1.5 bg-background shadow-sm border rounded-full text-destructive hover:bg-destructive/10">
-                    <Trash2 className="h-3 w-3" />
-                </button>
-            </div>
-
             {/* Content Area */}
             <div
-                className="min-h-12 p-4 w-full cursor-text"
+                className="min-h-[1.5em] p-4 w-full cursor-text text-gray-200"
                 onClick={(e) => {
                     e.stopPropagation();
                     handleFocus();
@@ -127,10 +99,11 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                         <textarea
                             ref={textareaRef}
                             value={cell.content}
-                            onChange={(e) => onChange(e.target.value)}
-                            onBlur={() => setIsEditing(false)}
-                            className="w-full bg-transparent resize-none outline-none font-mono text-sm leading-relaxed"
-                            placeholder="Type markdown..."
+                            onChange={handleChange}
+                            onKeyUp={updateCursorPosition}
+                            onClick={updateCursorPosition}
+                            className="w-full bg-transparent resize-none outline-none font-mono text-lg leading-relaxed min-h-[1.5em] overflow-hidden"
+                            placeholder="Start writing..."
                             autoFocus
                         />
                         {/* Lint Warnings */}
@@ -156,7 +129,7 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                         )}
                     </div>
                 ) : (
-                    <div className="prose dark:prose-invert max-w-none">
+                    <div className="prose dark:prose-invert max-w-none text-lg">
                         {cell.content ? (
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
@@ -165,26 +138,22 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, isActive }: Edi
                                 {cell.content}
                             </ReactMarkdown>
                         ) : (
-                            <span className="text-muted-foreground/40 italic text-sm select-none">
-                                Click to edit...
+                            <span className="text-muted-foreground/40 italic text-lg select-none">
+                                Start writing...
                             </span>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* AI Action Hint */}
+            {/* AI Hint */}
             {isEditing && (
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute right-2 top-2"
-                >
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-primary hover:bg-primary/10" title="AI Assist">
-                        <Sparkles className="h-3 w-3" />
+                <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:bg-primary/10" title="AI Assist">
+                        <Sparkles className="h-4 w-4" />
                     </Button>
-                </motion.div>
+                </div>
             )}
-        </motion.div>
+        </div>
     );
 }

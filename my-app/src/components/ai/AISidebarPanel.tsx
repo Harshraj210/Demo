@@ -55,7 +55,7 @@ export function AISidebarPanel({ isOpen, activeTool, onClose, onToolChange, note
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed inset-0 z-50 w-full bg-background/95 backdrop-blur-xl flex flex-col h-full shadow-2xl md:static md:w-[350px] md:border-l md:shadow-none md:z-auto"
+            className="fixed inset-0 z-50 w-full bg-background/95 backdrop-blur-xl flex flex-col h-full shadow-2xl md:static md:w-full md:h-full md:border-none md:shadow-none md:z-auto"
         >
             <div className="p-4 border-b flex flex-col gap-4 bg-muted/20 shrink-0">
                 <div className="flex items-center justify-between">
