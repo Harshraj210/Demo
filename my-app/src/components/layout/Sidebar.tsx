@@ -37,14 +37,22 @@ const TypewriterText = ({ text, className, delay = 0 }: { text: string, classNam
         className={cn("flex overflow-hidden", className)}
         initial="hidden"
         animate="visible"
-        exit="hidden"
+        exit="exit"
         variants={{
-            hidden: { opacity: 0, transition: { duration: 0.1 } }, // Fast exit
+            hidden: { opacity: 0 },
             visible: {
                 opacity: 1,
                 transition: {
-                    staggerChildren: 0.1, // Match title speed
+                    staggerChildren: 0.1,
                     delayChildren: delay
+                }
+            },
+            exit: {
+                opacity: 0,
+                transition: {
+                    staggerChildren: 0.1, // Slower stagger for smoother exit
+                    staggerDirection: -1,
+                    delayChildren: 0.2 // Wait a bit before starting to delete
                 }
             }
         }}
@@ -58,6 +66,11 @@ const TypewriterText = ({ text, className, delay = 0 }: { text: string, classNam
                         opacity: 1,
                         scale: 1,
                         transition: { type: "spring", damping: 20, stiffness: 300 }
+                    },
+                    exit: {
+                        opacity: 0,
+                        scale: 0.5,
+                        transition: { duration: 0.3 } // Slower individual char exit
                     }
                 }}
             >
@@ -69,7 +82,7 @@ const TypewriterText = ({ text, className, delay = 0 }: { text: string, classNam
 
 function SidebarContent() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true); // Default Closed
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [activeAITool, setActiveAITool] = useState<AIToolType>(null);
     const [isMobile, setIsMobile] = useState(false);
@@ -186,9 +199,9 @@ function SidebarContent() {
                 animate={isMobile ? (isMobileMenuOpen ? "mobileOpen" : "mobileClosed") : (isCollapsed ? "collapsed" : "expanded")}
                 variants={sidebarVariants}
                 // Swift spring transition
-                transition={{ type: "spring", stiffness: 400, damping: 40, mass: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }} // Slightly gentler spring for sidebar
                 className={cn(
-                    "flex flex-col z-50 overflow-hidden bg-background/80 backdrop-blur-xl border-r border-sky-400/30 shadow-2xl",
+                    "flex flex-col z-50 overflow-hidden bg-background border-r border-cyan-400/30 shadow-none", // Seamless solid background // Changed border-sky-400/30 to cyan
                     // Mobile styles: fixed full height
                     "fixed inset-y-0 left-0 h-full",
                     // Desktop styles: relative
@@ -197,28 +210,29 @@ function SidebarContent() {
             >
                 {/* Header */}
                 <div className="p-4 border-b border-border flex items-center justify-between shrink-0 h-16">
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="popLayout">
                         {(!isCollapsed || isMobile) && (
                             <motion.div
                                 className="font-bold text-lg tracking-tight whitespace-nowrap flex overflow-hidden"
                                 initial="hidden"
                                 animate="visible"
-                                exit="hidden"
+                                exit="exit"
                                 variants={{
-                                    hidden: { opacity: 0, transition: { duration: 0.1 } }, // Fast exit
+                                    hidden: { opacity: 0 },
                                     visible: {
                                         opacity: 1,
-                                        transition: {
-                                            staggerChildren: 0.1,
-                                            delayChildren: 0.1
-                                        }
+                                        transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+                                    },
+                                    exit: { // Adding exit variant for title
+                                        opacity: 0,
+                                        transition: { duration: 0.3 } // Slow down title exit
                                     }
                                 }}
                             >
                                 {"Klaer Notebook".split("").map((char, index) => (
                                     <motion.span
                                         key={index}
-                                        className={index >= 6 ? "text-sky-400" : ""}
+                                        className={index >= 6 ? "text-cyan-400" : ""} // Changed to text-cyan-400
                                         variants={{
                                             hidden: { opacity: 0, scale: 0.8 },
                                             visible: {
@@ -264,15 +278,17 @@ function SidebarContent() {
                                 )}
                                 onClick={() => isMobile && setIsMobileMenuOpen(false)}
                             >
-                                <Clock className={cn("h-5 w-5 shrink-0", !searchParams.get('folder') && !searchParams.get('view') ? "text-primary" : "text-muted-foreground")} />
-                                <AnimatePresence mode="wait">
+                                <motion.div layout className="flex items-center">
+                                    <Clock className={cn("h-5 w-5 shrink-0", !searchParams.get('folder') && !searchParams.get('view') ? "text-primary" : "text-muted-foreground")} />
+                                </motion.div>
+                                <AnimatePresence>
                                     {(!isCollapsed || isMobile) && (
                                         <motion.div
                                             key="recent-text"
-                                            className="ml-3 font-medium overflow-hidden"
+                                            className="ml-3 font-medium overflow-hidden whitespace-nowrap"
                                             initial={{ opacity: 0, width: 0 }}
                                             animate={{ opacity: 1, width: "auto" }}
-                                            exit={{ opacity: 0, width: 0, transition: { duration: 0.1 } }}
+                                            exit={{ opacity: 0, width: 0, transition: { duration: 0.3 } }} // Slower exit width
                                         >
                                             <TypewriterText text="Recent Files" delay={0.2} />
                                         </motion.div>
@@ -281,7 +297,6 @@ function SidebarContent() {
                             </Button>
                         </Link>
                     </motion.div>
-
 
                     <nav className="space-y-1">
                         {/* Notes List removed as per user request */}
@@ -306,15 +321,17 @@ function SidebarContent() {
                                 if (isMobile) setIsMobileMenuOpen(false);
                             }}
                         >
-                            <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
-                            <AnimatePresence mode="wait">
+                            <motion.div layout className="flex items-center">
+                                <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
+                            </motion.div>
+                            <AnimatePresence>
                                 {(!isCollapsed || isMobile) && (
                                     <motion.div
                                         key="folders-text"
-                                        className="ml-3 font-medium overflow-hidden"
+                                        className="ml-3 font-medium overflow-hidden whitespace-nowrap"
                                         initial={{ opacity: 0, width: 0 }}
                                         animate={{ opacity: 1, width: "auto" }}
-                                        exit={{ opacity: 0, width: 0, transition: { duration: 0.1 } }}
+                                        exit={{ opacity: 0, width: 0, transition: { duration: 0.3 } }} // Slower exit width
                                     >
                                         <TypewriterText text="Folders" delay={0.3} />
                                     </motion.div>

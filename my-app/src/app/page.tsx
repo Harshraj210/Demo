@@ -271,8 +271,10 @@ function HomeContent() {
                     key={folder.id}
                     onClick={() => router.push(`/?folder=${folder.id}`)}
                     className="flex flex-col gap-3 group"
+                    animate={{ scale: [1, 1.02, 1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <div className="aspect-4/5 rounded-2xl bg-white/3 border border-white/10 p-4 hover:border-transparent hover:bg-white/5 transition-all duration-300 cursor-pointer relative shadow-lg overflow-hidden flex flex-col items-center justify-center hover:-translate-y-2 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(59,130,246,0.3)]">
+                    <div className="aspect-4/5 rounded-2xl bg-white/3 border border-cyan-400/30 p-4 hover:border-cyan-400/60 hover:bg-white/5 transition-all duration-300 cursor-pointer relative shadow-[0_0_15px_rgba(34,211,238,0.1)] overflow-hidden flex flex-col items-center justify-center hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]">
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -280,7 +282,7 @@ function HomeContent() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-white/10">
+                          <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-cyan-400/20 text-white">
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}
                               className="text-red-400 focus:text-red-300 focus:bg-red-950/30"
@@ -291,10 +293,10 @@ function HomeContent() {
                         </DropdownMenu>
                       </div>
 
-                      <div className="p-6 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                      <div className="p-6 rounded-2xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform duration-300">
                         <FolderIcon className="h-12 w-12 opacity-80" />
                       </div>
-                      <div className="absolute inset-0 bg-linear-to-b from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-linear-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="text-center px-2">
                       <h3 className="font-medium text-sm text-foreground/90 truncate">{folder.name}</h3>
@@ -315,8 +317,10 @@ function HomeContent() {
                     key={note.id}
                     onClick={() => handleOpenNote(note.id)}
                     className="flex flex-col gap-3 group animate-in fade-in zoom-in duration-300"
+                    animate={{ scale: [1, 1.02, 1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <div className="aspect-4/5 rounded-2xl bg-white/3 border border-white/10 p-4 hover:border-transparent hover:bg-white/5 transition-all cursor-pointer relative shadow-lg overflow-hidden hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(59,130,246,0.2)]">
+                    <div className="aspect-4/5 rounded-2xl bg-white/3 border border-cyan-400/30 p-4 hover:border-cyan-400/60 hover:bg-white/5 transition-all cursor-pointer relative shadow-[0_0_15px_rgba(34,211,238,0.1)] overflow-hidden hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]">
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -324,7 +328,7 @@ function HomeContent() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-white/10">
+                          <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-cyan-400/20">
                             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); copyNote(note, folderId || undefined); }} className="text-white/70 focus:text-white">
                               <Copy className="h-4 w-4 mr-2" /> Duplicate
                             </DropdownMenuItem>
@@ -335,7 +339,7 @@ function HomeContent() {
                         </DropdownMenu>
                       </div>
 
-                      <div className="h-full w-full opacity-40 overflow-hidden font-mono text-[8px] leading-tight select-none pointer-events-none">
+                      <div className="h-full w-full opacity-40 overflow-hidden font-mono text-[8px] leading-tight select-none pointer-events-none text-cyan-100/50">
                         <div className="space-y-1">
                           {note.cells?.[0]?.content.split('\n').slice(0, 15).map((line, i) => (
                             <div key={i} className="truncate">{line || '\u00A0'}</div>
