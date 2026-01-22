@@ -6,7 +6,7 @@ import { useNotes } from '@/hooks/useNotes';
 import { useFolders } from '@/hooks/useFolders';
 import { Plus, FileText, Search, Grid, List, MoreVertical, Copy, Trash2, Folder as FolderIcon, FolderPlus, Clock, ArrowLeft, Check, X, FilePlus } from 'lucide-react';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -15,6 +15,53 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from '@/components/ui/button';
+
+const TypewriterText = ({ text, className, delay = 0 }: { text: string, className?: string, delay?: number }) => (
+    <motion.div
+        className={cn("flex overflow-hidden", className)}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={{
+            hidden: { opacity: 0 },
+            visible: {
+                opacity: 1,
+                transition: {
+                    staggerChildren: 0.1,
+                    delayChildren: delay
+                }
+            },
+            exit: {
+                opacity: 0,
+                transition: {
+                    staggerChildren: 0.05,
+                    staggerDirection: -1
+                }
+            }
+        }}
+    >
+        {text.split("").map((char, index) => (
+            <motion.span
+                key={index}
+                variants={{
+                    hidden: { opacity: 0, scale: 0.8 },
+                    visible: {
+                        opacity: 1,
+                        scale: 1,
+                        transition: { type: "spring", damping: 20, stiffness: 300 }
+                    },
+                    exit: {
+                         opacity: 0,
+                         scale: 0.5,
+                         transition: { duration: 0.2 }
+                    }
+                }}
+            >
+                {char === " " ? "\u00A0" : char}
+            </motion.span>
+        ))}
+    </motion.div>
+);
 
 function HomeContent() {
   const router = useRouter();
@@ -53,6 +100,8 @@ function HomeContent() {
   const isLoading = notesLoading || foldersLoading;
 
   const currentFolder = folders.find(f => f.id === folderId);
+  
+  const headingText = isRecentView ? "Recent Files" : isFoldersView ? "Folders" : (currentFolder?.name || "Folder");
 
   // Filter and Sort notes and folders
   const filteredNotes = useMemo(() => {
@@ -164,8 +213,10 @@ function HomeContent() {
                   </motion.div>
                 </Button>
               )}
-              <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                {isRecentView ? "Recent Files" : isFoldersView ? "Folders" : currentFolder?.name}
+              <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_0_20px_rgba(59,130,246,0.4)] min-h-[40px] flex items-center">
+                 <AnimatePresence mode="wait">
+                    <TypewriterText key={headingText} text={headingText} className="text-3xl font-extrabold" />
+                 </AnimatePresence>
               </h1>
             </div>
             <div className="flex items-center gap-2 flex-1 justify-end">
@@ -274,35 +325,46 @@ function HomeContent() {
                   <div
                     key={folder.id}
                     onClick={() => router.push(`/?folder=${folder.id}`)}
-                    className="flex flex-col gap-3 group"
+                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300"
                   >
-                    <div className="aspect-4/5 rounded-2xl bg-white/3 border border-cyan-400/30 p-4 hover:border-cyan-400/60 hover:bg-white/5 transition-all duration-300 cursor-pointer relative shadow-[0_0_15px_rgba(34,211,238,0.1)] overflow-hidden flex flex-col items-center justify-center hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]">
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 backdrop-blur hover:bg-black/60">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-cyan-400/20 text-white">
-                            <DropdownMenuItem
-                              onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}
-                              className="text-red-400 focus:text-red-300 focus:bg-red-950/30"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                     {/* Moving Border Gradient */}
+                     <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-100" />
+                    
+                     {/* Inner Card Content */}
+                     <div className="relative h-full w-full rounded-2xl bg-[#0b101b] p-4 flex flex-col gap-3 group-hover:bg-[#0b101b]/90 transition-colors"> 
+                        {/* Note: using fixed bg color to match card theme from globals.css or hardcoded in page previously used white/3 which is transparent. To make the border visible we need opaque background OR mask. Using opaque card bg #0b101b (from globals dark --card) + small opacity for texture if needed? 
+                        Let's use bg-black/90 or similar to allow *some* transparency but hide the gradient center. 
+                        Actually, the user wants the border to move. If I use a solid background, the border is just the padding. 
+                        */}
+                    
+                      <div className="aspect-4/5 rounded-xl bg-white/5 border border-white/5 p-4 relative overflow-hidden flex flex-col items-center justify-center">
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 backdrop-blur hover:bg-black/60">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-cyan-400/20 text-white">
+                              <DropdownMenuItem
+                                onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}
+                                className="text-red-400 focus:text-red-300 focus:bg-red-950/30"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
 
-                      <div className="p-6 rounded-2xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform duration-300">
-                        <FolderIcon className="h-12 w-12 opacity-80" />
+                        <div className="p-6 rounded-2xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform duration-300">
+                          <FolderIcon className="h-12 w-12 opacity-80" />
+                        </div>
+                        <div className="absolute inset-0 bg-linear-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
-                      <div className="absolute inset-0 bg-linear-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="text-center px-2">
-                      <h3 className="font-medium text-sm text-foreground/90 truncate">{folder.name}</h3>
-                      <p className="text-xs text-muted-foreground/60 mt-0.5">Folder</p>
+                      <div className="text-center px-1">
+                        <h3 className="font-medium text-sm text-foreground/90 truncate">{folder.name}</h3>
+                        <p className="text-xs text-muted-foreground/60 mt-0.5">Folder</p>
+                      </div>
                     </div>
                   </div>
                   ) : null
@@ -318,46 +380,52 @@ function HomeContent() {
                   <div
                     key={note.id}
                     onClick={() => handleOpenNote(note.id)}
-                    className="flex flex-col gap-3 group animate-in fade-in zoom-in duration-300"
+                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300"
                   >
-                    <div className="aspect-4/5 rounded-2xl bg-white/3 border border-cyan-400/30 p-4 hover:border-cyan-400/60 hover:bg-white/5 transition-all cursor-pointer relative shadow-[0_0_15px_rgba(34,211,238,0.1)] overflow-hidden hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]">
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 backdrop-blur hover:bg-black/60">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-cyan-400/20">
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); copyNote(note, folderId || undefined); }} className="text-white/70 focus:text-white">
-                              <Copy className="h-4 w-4 mr-2" /> Duplicate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }} className="text-red-400 focus:text-red-300 focus:bg-red-950/30">
-                              <Trash2 className="h-4 w-4 mr-2" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-
-                      <div className="h-full w-full opacity-40 overflow-hidden font-mono text-[8px] leading-tight select-none pointer-events-none text-cyan-100/50">
-                        <div className="space-y-1">
-                          {note.cells?.[0]?.content.split('\n').slice(0, 15).map((line, i) => (
-                            <div key={i} className="truncate">{line || '\u00A0'}</div>
-                          ))}
-                          {!note.cells?.[0]?.content && (
-                            <div className="flex items-center justify-center h-full opacity-10">
-                              <FileText className="h-12 w-12" />
-                            </div>
-                          )}
+                    {/* Moving Border Gradient */}
+                    <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-100" />
+                    
+                    {/* Inner Card Content */}
+                    <div className="relative h-full w-full rounded-2xl bg-[#0b101b] p-4 flex flex-col gap-3 group-hover:bg-[#0b101b]/90 transition-colors">
+                      <div className="aspect-4/5 rounded-xl bg-white/5 border border-white/5 p-4 relative overflow-hidden">
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 backdrop-blur hover:bg-black/60">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-[#0a0a1a] border-cyan-400/20">
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); copyNote(note, folderId || undefined); }} className="text-white/70 focus:text-white">
+                                <Copy className="h-4 w-4 mr-2" /> Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }} className="text-red-400 focus:text-red-300 focus:bg-red-950/30">
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
+
+                        <div className="h-full w-full opacity-40 overflow-hidden font-mono text-[8px] leading-tight select-none pointer-events-none text-cyan-100/50">
+                          <div className="space-y-1">
+                            {note.cells?.[0]?.content.split('\n').slice(0, 15).map((line, i) => (
+                              <div key={i} className="truncate">{line || '\u00A0'}</div>
+                            ))}
+                            {!note.cells?.[0]?.content && (
+                              <div className="flex items-center justify-center h-full opacity-10">
+                                <FileText className="h-12 w-12" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-60" />
                       </div>
-                      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                    </div>
-                    <div className="text-center px-2">
-                      <h3 className="font-medium text-sm text-foreground/90 truncate pr-2" title={note.title}>{note.title || 'Untitled'}</h3>
-                      <p className="text-xs text-muted-foreground/60 mt-0.5">
-                        {format(note.createdAt, 'd MMM')}
-                      </p>
+                      <div className="text-center px-1">
+                        <h3 className="font-medium text-sm text-foreground/90 truncate pr-2" title={note.title}>{note.title || 'Untitled'}</h3>
+                        <p className="text-xs text-muted-foreground/60 mt-0.5">
+                          {format(note.createdAt, 'd MMM')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
