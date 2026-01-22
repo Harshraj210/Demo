@@ -111,6 +111,11 @@ export default function ProfilePage() {
                                         <Input
                                             value={editForm.name}
                                             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleSave();
+                                                }
+                                            }}
                                             placeholder="Your Name"
                                             className="text-2xl font-bold h-12 text-center md:text-left"
                                             autoFocus

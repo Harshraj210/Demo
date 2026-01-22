@@ -17,50 +17,50 @@ import {
 import { Button } from '@/components/ui/button';
 
 const TypewriterText = ({ text, className, delay = 0 }: { text: string, className?: string, delay?: number }) => (
-    <motion.div
-        className={cn("flex overflow-hidden", className)}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
+  <motion.div
+    className={cn("flex overflow-hidden", className)}
+    initial="hidden"
+    animate="visible"
+    exit="exit"
+    variants={{
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.1,
+          delayChildren: delay
+        }
+      },
+      exit: {
+        opacity: 0,
+        transition: {
+          staggerChildren: 0.05,
+          staggerDirection: -1
+        }
+      }
+    }}
+  >
+    {text.split("").map((char, index) => (
+      <motion.span
+        key={index}
         variants={{
-            hidden: { opacity: 0 },
-            visible: {
-                opacity: 1,
-                transition: {
-                    staggerChildren: 0.1,
-                    delayChildren: delay
-                }
-            },
-            exit: {
-                opacity: 0,
-                transition: {
-                    staggerChildren: 0.05,
-                    staggerDirection: -1
-                }
-            }
+          hidden: { opacity: 0, scale: 0.8 },
+          visible: {
+            opacity: 1,
+            scale: 1,
+            transition: { type: "spring", damping: 20, stiffness: 300 }
+          },
+          exit: {
+            opacity: 0,
+            scale: 0.5,
+            transition: { duration: 0.2 }
+          }
         }}
-    >
-        {text.split("").map((char, index) => (
-            <motion.span
-                key={index}
-                variants={{
-                    hidden: { opacity: 0, scale: 0.8 },
-                    visible: {
-                        opacity: 1,
-                        scale: 1,
-                        transition: { type: "spring", damping: 20, stiffness: 300 }
-                    },
-                    exit: {
-                         opacity: 0,
-                         scale: 0.5,
-                         transition: { duration: 0.2 }
-                    }
-                }}
-            >
-                {char === " " ? "\u00A0" : char}
-            </motion.span>
-        ))}
-    </motion.div>
+      >
+        {char === " " ? "\u00A0" : char}
+      </motion.span>
+    ))}
+  </motion.div>
 );
 
 function HomeContent() {
@@ -100,7 +100,7 @@ function HomeContent() {
   const isLoading = notesLoading || foldersLoading;
 
   const currentFolder = folders.find(f => f.id === folderId);
-  
+
   const headingText = isRecentView ? "Recent Files" : isFoldersView ? "Folders" : (currentFolder?.name || "Folder");
 
   // Filter and Sort notes and folders
@@ -139,7 +139,7 @@ function HomeContent() {
     }
     // Default sort for folders (Newest first if not alpha)
     if (sortOption !== 'alphabetical') {
-       result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
     return result;
   }, [folders, debouncedSearchQuery, sortOption]);
@@ -197,7 +197,7 @@ function HomeContent() {
 
   return (
     <div className="h-screen overflow-y-auto overflow-x-hidden bg-background">
-      <div className="p-4 md:p-8 max-w-7xl mx-auto pb-32 relative">
+      <div className="p-4 md:p-8 pb-32 relative">
         <header className="mb-8 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 pl-12 md:pl-0 transition-[padding]">
@@ -214,9 +214,9 @@ function HomeContent() {
                 </Button>
               )}
               <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white dark:drop-shadow-[0_0_20px_rgba(59,130,246,0.4)] min-h-[40px] flex items-center">
-                 <AnimatePresence mode="wait">
-                    <TypewriterText key={headingText} text={headingText} className="text-3xl font-extrabold" />
-                 </AnimatePresence>
+                <AnimatePresence mode="wait">
+                  <TypewriterText key={headingText} text={headingText} className="text-3xl font-extrabold" />
+                </AnimatePresence>
               </h1>
             </div>
             <div className="flex items-center gap-2 flex-1 justify-end">
@@ -322,46 +322,46 @@ function HomeContent() {
 
                 {filteredFolders.map(folder => (
                   folder && folder.id ? (
-                  <div
-                    key={folder.id}
-                    onClick={() => router.push(`/?folder=${folder.id}`)}
-                    className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300 shadow-sm hover:shadow-md bg-zinc-200 dark:bg-zinc-800"
-                  >
-                     {/* Moving Border Gradient - Hover Only */}
-                     <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
-                     {/* Inner Card Content */}
-                     <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#02040a] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#02040a] transition-colors"> 
-                    
-                      <div className="aspect-4/5 rounded-xl bg-transparent p-0 relative overflow-hidden flex flex-col items-center justify-center">
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/60 dark:bg-black/40 backdrop-blur hover:bg-white/80 dark:hover:bg-black/60 text-foreground">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground">
-                              <DropdownMenuItem
-                                onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}
-                                className="text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                    <div
+                      key={folder.id}
+                      onClick={() => router.push(`/?folder=${folder.id}`)}
+                      className="relative group rounded-2xl p-[1px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] duration-300 shadow-sm hover:shadow-md bg-zinc-200 dark:bg-zinc-800"
+                    >
+                      {/* Moving Border Gradient - Hover Only */}
+                      <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <div className="w-full h-full flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                          <FolderIcon className="w-[85%] h-[85%] text-blue-500/80 dark:text-white stroke-[1]" />
+                      {/* Inner Card Content */}
+                      <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#02040a] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#02040a] transition-colors">
+
+                        <div className="aspect-4/5 rounded-xl bg-transparent p-0 relative overflow-hidden flex flex-col items-center justify-center">
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/60 dark:bg-black/40 backdrop-blur hover:bg-white/80 dark:hover:bg-black/60 text-foreground">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground">
+                                <DropdownMenuItem
+                                  onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}
+                                  className="text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+
+                          <div className="w-full h-full flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                            <FolderIcon className="w-[85%] h-[85%] text-blue-500/80 dark:text-white stroke-[1]" />
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-center px-1">
-                        <h3 className="font-medium text-sm text-foreground truncate">{folder.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Folder</p>
+                        <div className="text-center px-1">
+                          <h3 className="font-medium text-sm text-foreground truncate">{folder.name}</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">Folder</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
                   ) : null
                 ))}
               </>
@@ -379,7 +379,7 @@ function HomeContent() {
                   >
                     {/* Moving Border Gradient - Hover Only */}
                     <div className="absolute inset-[-100%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#3b82f6_50%,#0000_100%)] dark:bg-[conic-gradient(from_90deg_at_50%_50%,#0000_0%,#22d3ee_50%,#0000_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
+
                     {/* Inner Card Content */}
                     <div className="relative h-full w-full rounded-2xl bg-white dark:bg-[#0b101b] p-3 md:p-4 flex flex-col gap-3 group-hover:bg-zinc-50 dark:group-hover:bg-[#0b101b] transition-colors">
                       <div className="aspect-4/5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 p-4 relative overflow-hidden">
@@ -445,44 +445,44 @@ function HomeContent() {
         )}
       </div>
 
-        {/* Context-Aware FAB */}
-        <motion.div
-            initial={{ scale: 0, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="fixed bottom-8 right-8 z-50 pointer-events-auto"
+      {/* Context-Aware FAB */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-8 right-8 z-50 pointer-events-auto"
+      >
+        <Button
+          onClick={async () => {
+            if (isFoldersView) {
+              // Create Folder
+              const name = window.prompt("Enter folder name:");
+              if (name) {
+                await createFolder(name);
+                router.push(`/?view=folders`); // Refresh or stay
+              }
+            } else {
+              // Create Note
+              if (isSearchOpen) {
+                setSearchQuery('');
+              }
+              const newNote = await createNote("Untitled Note", folderId || undefined);
+              if (newNote) {
+                router.push(`/notes/${newNote.id}`);
+              }
+            }
+          }}
+          className={cn(
+            "h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-colors",
+            isFoldersView
+              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          )}
         >
-            <Button
-            onClick={async () => {
-                if (isFoldersView) {
-                // Create Folder
-                const name = window.prompt("Enter folder name:");
-                if (name) {
-                    await createFolder(name);
-                    router.push(`/?view=folders`); // Refresh or stay
-                }
-                } else {
-                // Create Note
-                if (isSearchOpen) {
-                    setSearchQuery('');
-                }
-                const newNote = await createNote("Untitled Note", folderId || undefined);
-                if (newNote) {
-                    router.push(`/notes/${newNote.id}`);
-                }
-                }
-            }}
-            className={cn(
-                "h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-colors",
-                isFoldersView
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            )}
-            >
-            {isFoldersView ? <FolderPlus className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
-            </Button>
-        </motion.div>
+          {isFoldersView ? <FolderPlus className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+        </Button>
+      </motion.div>
     </div>
   );
 }
