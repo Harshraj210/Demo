@@ -86,7 +86,7 @@ export function NoteEditor({ id }: { id: string }) {
     return (
         <div className="flex flex-col h-full overflow-hidden bg-black select-none">
             {/* Top Bar */}
-            <div className="flex-none h-14 border-b border-zinc-900 flex items-center justify-between px-4 bg-black z-20">
+            <div className="flex-none h-14 border-b border-cyan-500/20 flex items-center justify-between px-4 bg-black z-20">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
@@ -127,7 +127,7 @@ export function NoteEditor({ id }: { id: string }) {
                     </div>
 
                     {/* Status Bar */}
-                    <div className="h-10 bg-black border-t border-white/20 flex items-center justify-end px-4 text-xs shrink-0 select-none z-30 gap-6">
+                    <div className="h-10 bg-black border-t border-cyan-500/20 flex items-center justify-end px-4 text-xs shrink-0 select-none z-30 gap-6">
                         {/* Zoom Controls (First) */}
                         <div className="flex items-center gap-3">
                             <motion.button

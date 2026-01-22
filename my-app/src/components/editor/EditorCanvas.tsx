@@ -68,15 +68,19 @@ export function EditorCanvas({ note, onUpdate, zoomLevel, onCursorMove }: Editor
     return (
         <div className="flex flex-col h-full w-full bg-black text-white">
             {/* Toolbar - Floating */}
-            <div className="flex items-center justify-center px-4 py-3 bg-black/90 backdrop-blur-sm gap-4 shrink-0 transition-all border-b border-white/10 sticky top-0 z-40">
-                <div className="flex items-center gap-2 bg-zinc-900 px-4 py-1.5 rounded-full shadow-lg border border-zinc-800">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white" onClick={handleSave} title="Save (Ctrl+S)">
-                        <Save className="h-4 w-4" />
-                    </Button>
-                    <div className="w-px h-4 bg-zinc-700 mx-1" />
-                    <Button variant="ghost" className="h-8 px-3 gap-2 hover:bg-zinc-800 rounded-full text-zinc-300 hover:text-white text-sm font-medium" onClick={addCell}>
-                        <Plus className="h-4 w-4" /> Add Cell
-                    </Button>
+            {/* Toolbar - Floating */}
+            <div className="flex items-center justify-center px-4 py-3 bg-black/90 backdrop-blur-sm gap-4 shrink-0 transition-all border-b border-cyan-500/20 sticky top-0 z-40">
+                <div className="relative group rounded-full p-px overflow-hidden shadow-[0_0_10px_rgba(6,182,212,0.15)] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] transition-shadow duration-500">
+                    <div className="absolute inset-0 bg-cyan-500 group-hover:bg-cyan-400 transition-colors duration-300" />
+                    <div className="relative flex items-center gap-2 bg-black/90 px-5 py-1.5 rounded-full z-10">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors" onClick={handleSave} title="Save (Ctrl+S)">
+                            <Save className="h-4 w-4" />
+                        </Button>
+                        <div className="w-px h-4 bg-cyan-500/30 mx-1" />
+                        <Button variant="ghost" className="h-8 px-3 gap-2 hover:bg-zinc-800 rounded-full text-zinc-300 hover:text-white text-sm font-medium transition-colors" onClick={addCell}>
+                            <Plus className="h-4 w-4" /> Add Cell
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -93,7 +97,7 @@ export function EditorCanvas({ note, onUpdate, zoomLevel, onCursorMove }: Editor
                 >
                     <div className="w-full max-w-[1800px] mx-auto h-full flex flex-col">
                         {/* Title Area */}
-                        <div className="mb-8 border-b border-zinc-800 pb-4">
+                        <div className="mb-8 border-b border-cyan-500/20 pb-4">
                             <input
                                 type="text"
                                 value={note.title}

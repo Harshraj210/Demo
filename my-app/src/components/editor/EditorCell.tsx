@@ -8,7 +8,7 @@ import 'katex/dist/katex.min.css';
 import { Cell } from '@/store/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sparkles, AlertCircle } from 'lucide-react';
+import { Sparkles, AlertCircle, Trash } from 'lucide-react';
 import { LintService, LintError } from '@/lib/lint-service';
 import { motion } from 'framer-motion';
 
@@ -79,8 +79,8 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, i
                 "group relative mb-4 rounded-lg border bg-zinc-950 transition-all duration-200",
                 "border-zinc-800 hover:border-zinc-700",
                 // Focus state
-                "focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:shadow-lg focus-within:shadow-indigo-500/10",
-                isActive && "border-indigo-500 ring-1 ring-indigo-500 shadow-lg shadow-indigo-500/10"
+                "focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-500 focus-within:shadow-lg focus-within:shadow-cyan-500/10",
+                isActive && "border-cyan-500 ring-1 ring-cyan-500 shadow-lg shadow-cyan-500/10"
             )}
             onClick={() => {
                 if (onSelect) onSelect();
@@ -147,13 +147,17 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, i
             </div>
 
             {/* AI Hint */}
-            {isEditing && (
-                <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:bg-primary/10" title="AI Assist">
-                        <Sparkles className="h-4 w-4" />
+            {/* Cell Actions */}
+            <div className="absolute right-0 top-0 flex gap-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-900/50 backdrop-blur-sm rounded-bl-lg border-l border-b border-zinc-800">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-400 hover:text-red-400 hover:bg-red-900/20 transition-colors" onClick={onDelete} title="Delete Cell">
+                    <Trash className="h-3.5 w-3.5" />
+                </Button>
+                {isEditing && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-900/20 transition-colors" title="AI Assist">
+                        <Sparkles className="h-3.5 w-3.5" />
                     </Button>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
