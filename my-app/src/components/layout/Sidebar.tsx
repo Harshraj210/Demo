@@ -32,6 +32,41 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const TypewriterText = ({ text, className, delay = 0 }: { text: string, className?: string, delay?: number }) => (
+    <motion.div
+        className={cn("flex overflow-hidden", className)}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        variants={{
+            hidden: { opacity: 0, transition: { duration: 0.1 } }, // Fast exit
+            visible: {
+                opacity: 1,
+                transition: {
+                    staggerChildren: 0.1, // Match title speed
+                    delayChildren: delay
+                }
+            }
+        }}
+    >
+        {text.split("").map((char, index) => (
+            <motion.span
+                key={index}
+                variants={{
+                    hidden: { opacity: 0, scale: 0.8 },
+                    visible: {
+                        opacity: 1,
+                        scale: 1,
+                        transition: { type: "spring", damping: 20, stiffness: 300 }
+                    }
+                }}
+            >
+                {char === " " ? "\u00A0" : char}
+            </motion.span>
+        ))}
+    </motion.div>
+);
+
 function SidebarContent() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -153,7 +188,7 @@ function SidebarContent() {
                 // Swift spring transition
                 transition={{ type: "spring", stiffness: 400, damping: 40, mass: 1 }}
                 className={cn(
-                    "flex flex-col z-50 overflow-hidden bg-background/80 backdrop-blur-xl border-r border-border shadow-2xl",
+                    "flex flex-col z-50 overflow-hidden bg-background/80 backdrop-blur-xl border-r border-sky-400/30 shadow-2xl",
                     // Mobile styles: fixed full height
                     "fixed inset-y-0 left-0 h-full",
                     // Desktop styles: relative
@@ -164,14 +199,40 @@ function SidebarContent() {
                 <div className="p-4 border-b border-border flex items-center justify-between shrink-0 h-16">
                     <AnimatePresence mode="wait">
                         {(!isCollapsed || isMobile) && (
-                            <motion.span
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="font-bold text-lg tracking-tight whitespace-nowrap"
+                            <motion.div
+                                className="font-bold text-lg tracking-tight whitespace-nowrap flex overflow-hidden"
+                                initial="hidden"
+                                animate="visible"
+                                exit="hidden"
+                                variants={{
+                                    hidden: { opacity: 0, transition: { duration: 0.1 } }, // Fast exit
+                                    visible: {
+                                        opacity: 1,
+                                        transition: {
+                                            staggerChildren: 0.1,
+                                            delayChildren: 0.1
+                                        }
+                                    }
+                                }}
                             >
-                                Klaer AI
-                            </motion.span>
+                                {"Klaer Notebook".split("").map((char, index) => (
+                                    <motion.span
+                                        key={index}
+                                        className={index >= 6 ? "text-sky-400" : ""}
+                                        variants={{
+                                            hidden: { opacity: 0, scale: 0.8 },
+                                            visible: {
+                                                opacity: 1,
+                                                scale: 1,
+                                                // Higher damping to stop vibration, reasonable stiffness for snap
+                                                transition: { type: "spring", damping: 20, stiffness: 300 }
+                                            }
+                                        }}
+                                    >
+                                        {char === " " ? "\u00A0" : char}
+                                    </motion.span>
+                                ))}
+                            </motion.div>
                         )}
                     </AnimatePresence>
 
@@ -204,7 +265,19 @@ function SidebarContent() {
                                 onClick={() => isMobile && setIsMobileMenuOpen(false)}
                             >
                                 <Clock className={cn("h-5 w-5 shrink-0", !searchParams.get('folder') && !searchParams.get('view') ? "text-primary" : "text-muted-foreground")} />
-                                {(!isCollapsed || isMobile) && <span className="ml-3 font-medium">Recent Files</span>}
+                                <AnimatePresence mode="wait">
+                                    {(!isCollapsed || isMobile) && (
+                                        <motion.div
+                                            key="recent-text"
+                                            className="ml-3 font-medium overflow-hidden"
+                                            initial={{ opacity: 0, width: 0 }}
+                                            animate={{ opacity: 1, width: "auto" }}
+                                            exit={{ opacity: 0, width: 0, transition: { duration: 0.1 } }}
+                                        >
+                                            <TypewriterText text="Recent Files" delay={0.2} />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </Button>
                         </Link>
                     </motion.div>
@@ -234,7 +307,19 @@ function SidebarContent() {
                             }}
                         >
                             <FolderIcon className={cn("h-5 w-5 shrink-0", (searchParams.get('view') === 'folders' || searchParams.get('folder')) ? "text-primary" : "text-muted-foreground")} />
-                            {(!isCollapsed || isMobile) && <span className="ml-3 font-medium">Folders</span>}
+                            <AnimatePresence mode="wait">
+                                {(!isCollapsed || isMobile) && (
+                                    <motion.div
+                                        key="folders-text"
+                                        className="ml-3 font-medium overflow-hidden"
+                                        initial={{ opacity: 0, width: 0 }}
+                                        animate={{ opacity: 1, width: "auto" }}
+                                        exit={{ opacity: 0, width: 0, transition: { duration: 0.1 } }}
+                                    >
+                                        <TypewriterText text="Folders" delay={0.3} />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </Button>
                     </motion.div>
 
