@@ -8,22 +8,26 @@ export function useNote(id: string) {
     const [note, setNote] = useState<Note | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchNote = useCallback(async () => {
-        setLoading(true);
+    const fetchNote = useCallback(async (isInitial = false) => {
+        if (isInitial) setLoading(true);
         try {
             if (!id) return;
             const fetched = await db.notes.get(id);
-            setNote(fetched || null);
+            if (fetched) {
+                setNote(fetched);
+            } else {
+                setNote(null);
+            }
         } catch (error) {
             console.error("Failed to fetch note:", error);
             setNote(null);
         } finally {
-            setLoading(false);
+            if (isInitial) setLoading(false);
         }
     }, [id]);
 
     useEffect(() => {
-        fetchNote();
+        fetchNote(true);
     }, [fetchNote]);
 
     const saveNote = async (updatedNote: Note) => {

@@ -8,9 +8,57 @@ import 'katex/dist/katex.min.css';
 import { Cell } from '@/store/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sparkles, AlertCircle, Trash } from 'lucide-react';
+import { Sparkles, AlertCircle, Trash, Bold, Italic, Code } from 'lucide-react';
 import { LintService, LintError } from '@/lib/lint-service';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface FloatingToolbarProps {
+    position: { top: number; left: number } | null;
+    onAction: (action: string) => void;
+}
+
+function FloatingToolbar({ position, onAction }: FloatingToolbarProps) {
+    if (!position) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            className="fixed z-[100] bg-[#050505]/90 backdrop-blur-xl border border-cyan-500/50 rounded-full p-1 flex items-center gap-1 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+            style={{
+                top: position.top - 50,
+                left: position.left,
+                transform: 'translateX(-50%)'
+            }}
+        >
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                onClick={() => onAction('bold')}
+            >
+                <Bold className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                onClick={() => onAction('italic')}
+            >
+                <Italic className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all"
+                onClick={() => onAction('code')}
+            >
+                <Code className="h-4 w-4" />
+            </Button>
+        </motion.div>
+    );
+}
 
 interface EditorCellProps {
     cell: Cell;
@@ -24,7 +72,44 @@ interface EditorCellProps {
 export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, isActive }: EditorCellProps) {
     const [isEditing, setIsEditing] = useState(true); // Default to true
     const [lintErrors, setLintErrors] = useState<LintError[]>([]);
+    const [toolbarPos, setToolbarPos] = useState<{ top: number; left: number } | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Handle text selection for floating toolbar
+    useEffect(() => {
+        const handleSelection = () => {
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim() && textareaRef.current && document.activeElement === textareaRef.current) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                setToolbarPos({
+                    top: rect.top + window.scrollY,
+                    left: rect.left + rect.width / 2 + window.scrollX
+                });
+            } else {
+                setToolbarPos(null);
+            }
+        };
+
+        document.addEventListener('selectionchange', handleSelection);
+        return () => document.removeEventListener('selectionchange', handleSelection);
+    }, []);
+
+    const handleToolbarAction = (action: string) => {
+        if (!textareaRef.current) return;
+        const start = textareaRef.current.selectionStart;
+        const end = textareaRef.current.selectionEnd;
+        const text = cell.content;
+        const selected = text.substring(start, end);
+
+        let newText = text;
+        if (action === 'bold') newText = text.substring(0, start) + `**${selected}**` + text.substring(end);
+        if (action === 'italic') newText = text.substring(0, start) + `*${selected}*` + text.substring(end);
+        if (action === 'code') newText = text.substring(0, start) + `\`${selected}\`` + text.substring(end);
+
+        onChange(newText);
+        setToolbarPos(null);
+    };
 
     // Auto-resize textarea
     useEffect(() => {
@@ -76,16 +161,20 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, i
     return (
         <div
             className={cn(
-                "group relative mb-4 rounded-lg border bg-zinc-950 transition-all duration-200",
-                "border-zinc-800 hover:border-zinc-700",
+                "group relative mb-6 rounded-2xl border transition-all duration-500 overflow-hidden",
+                "backdrop-blur-xl bg-[#050505]/80",
+                "border-cyan-500/20 hover:border-cyan-500/40",
                 // Focus state
-                "focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-500 focus-within:shadow-lg focus-within:shadow-cyan-500/10",
-                isActive && "border-cyan-500 ring-1 ring-cyan-500 shadow-lg shadow-cyan-500/10"
+                "focus-within:border-cyan-400 focus-within:shadow-[0_0_30px_rgba(34,211,238,0.2)]",
+                isActive && "border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.2)]"
             )}
             onClick={() => {
                 if (onSelect) onSelect();
             }}
         >
+            <AnimatePresence>
+                {toolbarPos && <FloatingToolbar position={toolbarPos} onAction={handleToolbarAction} />}
+            </AnimatePresence>
             {/* Content Area */}
             <div
                 className="min-h-[1.5em] p-4 w-full cursor-text text-gray-200"
@@ -101,8 +190,9 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, i
                             value={cell.content}
                             onChange={handleChange}
                             onKeyUp={updateCursorPosition}
+                            onMouseUp={updateCursorPosition}
                             onClick={updateCursorPosition}
-                            className="w-full bg-transparent resize-none outline-none font-mono text-lg leading-relaxed min-h-[1.5em] overflow-hidden"
+                            className="w-full bg-transparent resize-none outline-none font-mono text-lg leading-relaxed min-h-[1.5em] overflow-hidden text-zinc-100 placeholder:text-zinc-800"
                             placeholder="Start writing..."
                             autoFocus
                         />
@@ -148,13 +238,13 @@ export function EditorCell({ cell, onChange, onDelete, onSelect, onCursorMove, i
 
             {/* AI Hint */}
             {/* Cell Actions */}
-            <div className="absolute right-0 top-0 flex gap-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-900/50 backdrop-blur-sm rounded-bl-lg border-l border-b border-zinc-800">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-400 hover:text-red-400 hover:bg-red-900/20 transition-colors" onClick={onDelete} title="Delete Cell">
-                    <Trash className="h-3.5 w-3.5" />
+            <div className="absolute right-0 top-0 flex gap-1 p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-cyan-500/5 backdrop-blur-md rounded-bl-2xl border-l border-b border-cyan-500/20 translate-y-[-10px] group-hover:translate-y-0">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors" onClick={onDelete} title="Delete Cell">
+                    <Trash className="h-4 w-4" />
                 </Button>
                 {isEditing && (
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-900/20 transition-colors" title="AI Assist">
-                        <Sparkles className="h-3.5 w-3.5" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-cyan-500 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors" title="AI Assist">
+                        <Sparkles className="h-4 w-4" />
                     </Button>
                 )}
             </div>
