@@ -2,18 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     // Wait for client-side hydration to complete
     useEffect(() => {
         setMounted(true);
+        router.replace('/');
     }, []);
 
     // NOTE: Removed the useEffect timer here because LoadingScreen drives the completion now via onComplete

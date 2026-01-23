@@ -85,15 +85,15 @@ export function NoteEditor({ id }: { id: string }) {
     const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
 
     if (error) {
-         return (
-             <div className="flex h-[100vh] w-full items-center justify-center flex-col gap-4 bg-black text-white z-50 relative">
-                 <h2 className="text-xl font-bold text-red-500">Error Loading Note</h2>
-                 <p className="text-zinc-400">{error}</p>
-                 <Button onClick={() => router.push('/')} variant="outline" className="mt-4 border-zinc-800 hover:bg-zinc-900">
-                     Return Home
-                 </Button>
-             </div>
-         );
+        return (
+            <div className="flex h-[100vh] w-full items-center justify-center flex-col gap-4 bg-black text-white z-50 relative">
+                <h2 className="text-xl font-bold text-red-500">Error Loading Note</h2>
+                <p className="text-zinc-400">{error}</p>
+                <Button onClick={() => router.push('/')} variant="outline" className="mt-4 border-zinc-800 hover:bg-zinc-900">
+                    Return Home
+                </Button>
+            </div>
+        );
     }
 
     if (loading) {
@@ -123,40 +123,27 @@ export function NoteEditor({ id }: { id: string }) {
         <div className="flex flex-col h-[100vh] w-full overflow-hidden bg-[#050505] select-none">
             {/* Top Bar */}
             <div className="flex-none h-14 border-b border-cyan-500/30 flex items-center justify-between px-6 bg-[#050505]/80 backdrop-blur-xl z-20">
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-6 flex-1 max-w-4xl">
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={handleBack}
-                        className="h-9 w-9 text-cyan-500 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-full transition-all"
+                        className="h-9 w-9 text-cyan-500 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-full transition-all shrink-0"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
 
-                    {/* Breadcrumbs */}
-                    <nav className="flex items-center gap-1.5 text-sm font-medium">
-                        <button
-                            onClick={() => router.push('/')}
-                            className="text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 px-2 py-1 rounded-md transition-all"
-                        >
-                            Home
-                        </button>
-                        <ChevronRight className="h-4 w-4 text-zinc-600" />
-                        {parentFolder && (
-                            <>
-                                <button
-                                    onClick={() => router.push(`/?folder=${parentFolder.id}`)}
-                                    className="text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 px-2 py-1 rounded-md transition-all truncate max-w-[150px]"
-                                >
-                                    {parentFolder.name}
-                                </button>
-                                <ChevronRight className="h-4 w-4 text-zinc-600" />
-                            </>
-                        )}
-                        <span className="text-white drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] px-2 py-1 truncate max-w-[200px]">
-                            {note.title || "Untitled Note"}
-                        </span>
-                    </nav>
+                    {/* Pinned Title Input */}
+                    <div className="relative group flex-1">
+                        <input
+                            type="text"
+                            value={note.title}
+                            onChange={(e) => saveNote({ ...note, title: e.target.value })}
+                            className="bg-transparent border-none outline-none text-xl md:text-2xl font-black text-white placeholder:text-zinc-700 w-full transition-all drop-shadow-[0_0_8px_rgba(34,211,238,0.2)] focus:drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] tracking-tight"
+                            placeholder="Untitled Note"
+                        />
+                        <div className="absolute bottom-0 left-0 h-0.5 bg-cyan-500/30 w-0 group-focus-within:w-full transition-all duration-500" />
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button
@@ -249,23 +236,23 @@ export function NoteEditor({ id }: { id: string }) {
                 </AnimatePresence>
                 <AnimatePresence>
                     {activeTool && (
-                         <motion.div
+                        <motion.div
                             initial={{ opacity: 0, y: 100 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 100 }}
                             className="md:hidden absolute inset-0 z-50 bg-[#050505]"
-                         >
-                                <AISidebarPanel
-                                    isOpen={true}
-                                    activeTool={activeTool}
-                                    onClose={() => setActiveTool(null)}
-                                    onToolChange={setActiveTool}
-                                    noteContent={noteContent}
-                                />
-                         </motion.div>
+                        >
+                            <AISidebarPanel
+                                isOpen={true}
+                                activeTool={activeTool}
+                                onClose={() => setActiveTool(null)}
+                                onToolChange={setActiveTool}
+                                noteContent={noteContent}
+                            />
+                        </motion.div>
                     )}
                 </AnimatePresence>
             </div>
-        </div>
+        </div >
     );
 }

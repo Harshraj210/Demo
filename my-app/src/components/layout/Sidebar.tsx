@@ -229,8 +229,8 @@ function SidebarContent() {
                                 exit={{ opacity: 0, x: -10 }}
                                 transition={{ duration: 0.2 }}
                             >
-                                <span className="text-zinc-900 dark:text-zinc-100">Klaer</span>
-                                <span className="text-blue-600 dark:text-cyan-400 pl-1">Notebook</span>
+                                <span className="text-zinc-900 dark:text-zinc-100">Klaer&nbsp;</span>
+                                <span className="text-blue-600 dark:text-cyan-400">Notebook</span>
                             </motion.div>
                         ) : (
                             <motion.div

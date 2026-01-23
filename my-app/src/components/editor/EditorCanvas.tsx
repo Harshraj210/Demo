@@ -83,14 +83,8 @@ export function EditorCanvas({ note, onUpdate, zoomLevel, onCursorMove }: Editor
                         >
                             <Save className="h-4 w-4" />
                         </Button>
-                        <div className="w-px h-4 bg-cyan-500/20 mx-1" />
-                        <Button
-                            variant="ghost"
-                            className="h-8 px-4 gap-2 hover:bg-linear-to-r hover:from-cyan-500/20 hover:to-blue-500/20 rounded-full text-zinc-300 hover:text-cyan-400 text-sm font-bold transition-all border border-transparent hover:border-cyan-500/40"
-                            onClick={addCell}
-                        >
-                            <Plus className="h-4 w-4" /> Add Cell
-                        </Button>
+                        <div className="w-px h-4 bg-transparent mx-1" />
+
                     </div>
                 </div>
             </div>
@@ -105,38 +99,58 @@ export function EditorCanvas({ note, onUpdate, zoomLevel, onCursorMove }: Editor
                     }}
                 >
                     <div className="w-full h-full flex flex-col">
-                        {/* Title Area */}
-                        <div className="mb-12 border-b border-cyan-500/10 pb-6 relative group">
-                            <input
-                                type="text"
-                                value={note.title}
-                                onChange={(e) => onUpdate({ ...note, title: e.target.value })}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        firstCellRef.current?.focus();
-                                    }
-                                }}
-                                className="text-6xl font-black bg-transparent border-none outline-none w-full text-white placeholder:text-zinc-900 transition-all drop-shadow-[0_0_12px_rgba(34,211,238,0.4)] focus:drop-shadow-[0_0_18px_rgba(34,211,238,1)] tracking-tighter"
-                                placeholder="Untitled Note"
-                            />
-                            <div className="absolute bottom-0 left-0 h-0.5 bg-cyan-500/50 w-0 group-focus-within:w-full transition-all duration-700" />
-                        </div>
 
                         {/* Cells */}
-                        <div className="space-y-4 flex-1">
+                        <div className="space-y-0.5 flex-1">
                             {note.cells && note.cells.map((cell, index) => (
                                 <EditorCell
                                     key={cell.id}
-                                    ref={index === 0 ? firstCellRef : null}
+                                    ref={(el) => {
+                                        // Store ref in a map or similar if we want to manage focus by index, 
+                                        // but for now keeping it simple. We can use the 'autoFocus' on new cells 
+                                        // or simple effect logic.
+                                        if (index === 0 && !firstCellRef.current) {
+                                            // @ts-ignore
+                                            firstCellRef.current = el;
+                                        }
+                                    }}
                                     cell={cell}
                                     onChange={(content) => handleCellChange(cell.id, content)}
                                     onDelete={() => handleDeleteCell(cell.id)}
+                                    // New Prop: onSplit
+                                    onSplit={(cursorIdx, type) => {
+                                        const contentBefore = cell.content.substring(0, cursorIdx);
+                                        const contentAfter = cell.content.substring(cursorIdx);
+
+                                        // Remove the slash command from contentBefore if it triggered the split
+                                        // The EditorCell will handle the trigger text removal usually, but 
+                                        // let's say the trigger was simple.
+
+                                        const newType = type || 'code';
+
+                                        const newCellId = uuidv4();
+                                        const remainderCellId = uuidv4();
+
+                                        const updatedCurrentCell = { ...cell, content: contentBefore };
+                                        const newCell: Cell = { id: newCellId, type: newType, content: '' };
+                                        const remainderCell: Cell = { id: remainderCellId, type: 'markdown', content: contentAfter };
+
+                                        const currentCells = note.cells;
+                                        const newCells = [
+                                            ...currentCells.slice(0, index),
+                                            updatedCurrentCell,
+                                            newCell,
+                                            remainderCell,
+                                            ...currentCells.slice(index + 1)
+                                        ];
+
+                                        onUpdate({ ...note, cells: newCells });
+                                    }}
                                     isActive={false}
                                     onCursorMove={onCursorMove}
                                 />
                             ))}
-                            <div ref={bottomRef} className="h-20" />
+                            <div ref={bottomRef} className="h-40" />
                         </div>
                     </div>
                 </div>
