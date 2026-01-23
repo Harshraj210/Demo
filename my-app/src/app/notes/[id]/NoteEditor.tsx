@@ -224,15 +224,18 @@ export function NoteEditor({ id }: { id: string }) {
                 {/* Resizable Sidebar */}
                 <AnimatePresence mode="wait">
                     {activeTool && (
-                        <>
+                        <motion.div
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: sidebarWidth, opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="hidden md:flex relative h-full shrink-0"
+                        >
                             <div
-                                className="w-1.5 bg-zinc-900 hover:bg-blue-500 cursor-col-resize z-50 transition-colors hidden md:block active:bg-blue-600"
+                                className="absolute left-0 top-0 bottom-0 w-1.5 hover:bg-cyan-500 cursor-col-resize z-50 transition-colors active:bg-cyan-600"
                                 onMouseDown={startResizing}
                             />
-                            <div
-                                style={{ width: sidebarWidth }}
-                                className="hidden md:flex flex-col border-l border-zinc-800 bg-[#050505] h-full shrink-0"
-                            >
+                            <div className="flex-1 flex flex-col border-l border-zinc-800 bg-[#050505] h-full overflow-hidden">
                                 <AISidebarPanel
                                     isOpen={true}
                                     activeTool={activeTool}
@@ -241,7 +244,17 @@ export function NoteEditor({ id }: { id: string }) {
                                     noteContent={noteContent}
                                 />
                             </div>
-                            <div className="md:hidden absolute inset-0 z-50 bg-[#050505]">
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                <AnimatePresence>
+                    {activeTool && (
+                         <motion.div
+                            initial={{ opacity: 0, y: 100 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 100 }}
+                            className="md:hidden absolute inset-0 z-50 bg-[#050505]"
+                         >
                                 <AISidebarPanel
                                     isOpen={true}
                                     activeTool={activeTool}
@@ -249,8 +262,7 @@ export function NoteEditor({ id }: { id: string }) {
                                     onToolChange={setActiveTool}
                                     noteContent={noteContent}
                                 />
-                            </div>
-                        </>
+                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
