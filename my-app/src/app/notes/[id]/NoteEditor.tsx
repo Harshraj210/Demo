@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNote } from '@/hooks/useNote';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
-import { Loader2, PanelRightOpen, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
+import { Loader2, PanelRightOpen, ArrowLeft, ZoomIn, ZoomOut, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AISidebarPanel, AIToolType } from '@/components/ai/AISidebarPanel';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -134,26 +134,26 @@ export function NoteEditor({ id }: { id: string }) {
                     </Button>
 
                     {/* Breadcrumbs */}
-                    <nav className="flex items-center gap-2 text-sm font-medium">
+                    <nav className="flex items-center gap-1.5 text-sm font-medium">
                         <button
                             onClick={() => router.push('/')}
-                            className="text-zinc-500 hover:text-cyan-400 transition-colors"
+                            className="text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 px-2 py-1 rounded-md transition-all"
                         >
                             Home
                         </button>
-                        <span className="text-zinc-700">/</span>
+                        <ChevronRight className="h-4 w-4 text-zinc-600" />
                         {parentFolder && (
                             <>
                                 <button
                                     onClick={() => router.push(`/?folder=${parentFolder.id}`)}
-                                    className="text-zinc-500 hover:text-cyan-400 transition-colors truncate max-w-[150px]"
+                                    className="text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 px-2 py-1 rounded-md transition-all truncate max-w-[150px]"
                                 >
                                     {parentFolder.name}
                                 </button>
-                                <span className="text-zinc-700">/</span>
+                                <ChevronRight className="h-4 w-4 text-zinc-600" />
                             </>
                         )}
-                        <span className="text-white drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] truncate max-w-[200px]">
+                        <span className="text-white drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] px-2 py-1 truncate max-w-[200px]">
                             {note.title || "Untitled Note"}
                         </span>
                     </nav>

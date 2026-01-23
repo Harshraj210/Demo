@@ -223,9 +223,18 @@ function HomeContent() {
                   </motion.div>
                 </Button>
               )}
-              <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white dark:drop-shadow-[0_0_20px_rgba(34,211,238,0.4)] min-h-[40px] flex items-center">
+              <h1 className="text-3xl font-extrabold tracking-tight !text-black dark:!text-white dark:drop-shadow-[0_0_20px_rgba(34,211,238,0.4)] min-h-[40px] flex items-center">
                 <AnimatePresence mode="wait">
-                  <TypewriterText key={headingText} text={headingText} className="text-3xl font-extrabold" />
+                  <motion.span
+                    key={headingText}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-3xl font-extrabold !text-black dark:!text-white"
+                  >
+                    {headingText}
+                  </motion.span>
                 </AnimatePresence>
               </h1>
             </div>
@@ -487,8 +496,8 @@ function HomeContent() {
               className="flex items-center gap-1.5"
             >
               <div className="w-1 h-1 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(34,211,238,0.8)]" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                Active View: <span className="text-cyan-500/60">{headingText}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-900 dark:text-zinc-400">
+                Active View: <span className="text-cyan-900 dark:text-cyan-400">{headingText}</span>
               </span>
             </motion.div>
           </div>

@@ -67,11 +67,7 @@ export function EditorCanvas({ note, onUpdate, zoomLevel, onCursorMove }: Editor
 
     return (
         <div className="flex flex-col h-full w-full bg-[#050505] text-white relative overflow-hidden transition-all duration-300">
-            {/* Starfield Background */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(1px_1px_at_20px_30px,#fff,transparent),radial-gradient(1.5px_1.5px_at_40px_70px,#fff,transparent),radial-gradient(2px_2px_at_50px_160px,#fff,transparent),radial-gradient(1px_1px_at_80px_120px,#fff,transparent),radial-gradient(1.5px_1.5px_at_110px_190px,#fff,transparent)] bg-size-[200px_200px]" />
-                <div className="absolute inset-0 bg-linear-to-b from-transparent via-cyan-950/5 to-transparent" />
-            </div>
+
             {/* Toolbar - Floating */}
             {/* Toolbar - Floating */}
             <div className="flex items-center justify-center px-4 py-4 bg-transparent gap-4 shrink-0 transition-all sticky top-0 z-40">

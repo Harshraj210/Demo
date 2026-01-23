@@ -214,38 +214,13 @@ function SidebarContent() {
                         {(!isCollapsed || isMobile) && (
                             <motion.div
                                 className="font-bold text-lg tracking-tight whitespace-nowrap flex overflow-hidden"
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                variants={{
-                                    hidden: { opacity: 0 },
-                                    visible: {
-                                        opacity: 1,
-                                        transition: { staggerChildren: 0.1, delayChildren: 0.1 }
-                                    },
-                                    exit: { // Adding exit variant for title
-                                        opacity: 0,
-                                        transition: { duration: 0.3 } // Slow down title exit
-                                    }
-                                }}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
                             >
-                                {"Klaer Notebook".split("").map((char, index) => (
-                                    <motion.span
-                                        key={index}
-                                        className={index >= 6 ? "text-blue-600 dark:text-cyan-400" : ""} // Theme aware color
-                                        variants={{
-                                            hidden: { opacity: 0, scale: 0.8 },
-                                            visible: {
-                                                opacity: 1,
-                                                scale: 1,
-                                                // Higher damping to stop vibration, reasonable stiffness for snap
-                                                transition: { type: "spring", damping: 20, stiffness: 300 }
-                                            }
-                                        }}
-                                    >
-                                        {char === " " ? "\u00A0" : char}
-                                    </motion.span>
-                                ))}
+                                <span className="text-zinc-900 dark:text-zinc-100">Klaer </span>
+                                <span className="text-blue-600 dark:text-cyan-400">Notebook</span>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -288,9 +263,9 @@ function SidebarContent() {
                                             className="ml-3 font-medium overflow-hidden whitespace-nowrap"
                                             initial={{ opacity: 0, width: 0 }}
                                             animate={{ opacity: 1, width: "auto" }}
-                                            exit={{ opacity: 0, width: 0, transition: { duration: 0.3 } }} // Slower exit width
+                                            exit={{ opacity: 0, width: 0, transition: { duration: 0.3 } }}
                                         >
-                                            <TypewriterText text="Recent Files" delay={0.2} />
+                                            Recent Files
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -331,9 +306,9 @@ function SidebarContent() {
                                         className="ml-3 font-medium overflow-hidden whitespace-nowrap"
                                         initial={{ opacity: 0, width: 0 }}
                                         animate={{ opacity: 1, width: "auto" }}
-                                        exit={{ opacity: 0, width: 0, transition: { duration: 0.3 } }} // Slower exit width
+                                        exit={{ opacity: 0, width: 0, transition: { duration: 0.3 } }}
                                     >
-                                        <TypewriterText text="Folders" delay={0.3} />
+                                        Folders
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -396,30 +371,30 @@ function SidebarContent() {
                     onClick={() => setIsSettingsOpen(false)}
                 >
                     <div
-                        className="bg-card border border-border rounded-xl shadow-lg w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
+                        className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-4 border-b border-border flex items-center justify-between">
-                            <h3 className="text-lg font-bold flex items-center gap-2">
+                        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                            <h3 className="text-lg font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
                                 <Settings className="h-4 w-4" />
                                 Settings
                             </h3>
-                            <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(false)}>
+                            <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(false)} className="text-zinc-950 dark:text-white">
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
 
                         <div className="p-6 space-y-6">
                             <div className="space-y-3">
-                                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Appearance</h4>
-                                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border/50">
+                                <h4 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Appearance</h4>
+                                <div className="flex items-center justify-between p-3 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-primary/10 text-primary rounded-md">
+                                        <div className="p-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md">
                                             {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="font-medium">Theme</span>
-                                            <span className="text-xs text-muted-foreground">
+                                            <span className="font-medium text-zinc-900 dark:text-zinc-100">Theme</span>
+                                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
                                                 {theme === 'dark' ? 'Dark mode is active' : 'Light mode is active'}
                                             </span>
                                         </div>
@@ -428,13 +403,14 @@ function SidebarContent() {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                        className="border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
                                     >
                                         Switch to {theme === 'dark' ? 'Light' : 'Dark'}
                                     </Button>
                                 </div>
                             </div>
 
-                            <div className="pt-2 text-center text-xs text-muted-foreground">
+                            <div className="pt-2 text-center text-xs text-zinc-400 dark:text-zinc-600">
                                 <p>Version 0.1.0 • Built with Next.js 16</p>
                             </div>
                         </div>
