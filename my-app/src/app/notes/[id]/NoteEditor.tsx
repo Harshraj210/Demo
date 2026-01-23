@@ -11,10 +11,11 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useFolders } from '@/hooks/useFolders';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export function NoteEditor({ id }: { id: string }) {
     const router = useRouter();
-    const { note, loading, saveNote } = useNote(id);
+    const { note, loading, error, saveNote } = useNote(id);
     const { folders } = useFolders();
     const [activeTool, setActiveTool] = useState<AIToolType>(null);
     const [sidebarWidth, setSidebarWidth] = useState(400);
@@ -23,6 +24,12 @@ export function NoteEditor({ id }: { id: string }) {
     const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
 
     const parentFolder = note?.folderId ? folders.find(f => f.id === note.folderId) : null;
+
+    useEffect(() => {
+        if (error) {
+            console.error("NoteEditor Error:", error);
+        }
+    }, [error]);
 
     const handleBack = () => {
         if (note?.folderId) {
@@ -77,19 +84,35 @@ export function NoteEditor({ id }: { id: string }) {
     const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 0.1, 2));
     const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
 
+    if (error) {
+         return (
+             <div className="flex h-[100vh] w-full items-center justify-center flex-col gap-4 bg-black text-white z-50 relative">
+                 <h2 className="text-xl font-bold text-red-500">Error Loading Note</h2>
+                 <p className="text-zinc-400">{error}</p>
+                 <Button onClick={() => router.push('/')} variant="outline" className="mt-4 border-zinc-800 hover:bg-zinc-900">
+                     Return Home
+                 </Button>
+             </div>
+         );
+    }
+
     if (loading) {
         return (
-            <div className="flex h-full items-center justify-center bg-black text-white">
-                <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+            <div className="flex h-[100vh] w-full items-center justify-center bg-black text-white z-50 relative">
+                <Loader2 className="h-10 w-10 animate-spin text-cyan-500" />
+                <span className="ml-3 text-zinc-400 font-medium tracking-wide">Loading Note...</span>
             </div>
         );
     }
 
     if (!note) {
         return (
-            <div className="flex h-full items-center justify-center flex-col gap-4 bg-black text-white">
+            <div className="flex h-[100vh] w-full items-center justify-center flex-col gap-4 bg-black text-white z-50 relative">
                 <h2 className="text-xl font-semibold">Note not found</h2>
                 <p className="text-zinc-500">This note might have been deleted or does not exist.</p>
+                <Button onClick={() => router.push('/')} variant="ghost" className="text-cyan-400 hover:bg-cyan-950/30">
+                    Go Home
+                </Button>
             </div>
         );
     }
@@ -97,7 +120,7 @@ export function NoteEditor({ id }: { id: string }) {
     const noteContent = note.cells.map(c => c.content).join('\n\n');
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-[#050505] select-none">
+        <div className="flex flex-col h-[100vh] w-full overflow-hidden bg-[#050505] select-none">
             {/* Top Bar */}
             <div className="flex-none h-14 border-b border-cyan-500/30 flex items-center justify-between px-6 bg-[#050505]/80 backdrop-blur-xl z-20">
                 <div className="flex items-center gap-6">
@@ -156,12 +179,14 @@ export function NoteEditor({ id }: { id: string }) {
                 <div className="flex-1 flex flex-col min-w-0 w-full bg-[#050505] relative transition-all duration-300">
                     <div className="flex-1 overflow-y-auto scrollbar-none">
                         {/* Correctly passing zoomLevel and onCursorMove */}
-                        <EditorCanvas
-                            note={note}
-                            onUpdate={saveNote}
-                            zoomLevel={zoomLevel}
-                            onCursorMove={(line, col) => setCursorPos({ line, col })}
-                        />
+                        <ErrorBoundary>
+                            <EditorCanvas
+                                note={note}
+                                onUpdate={saveNote}
+                                zoomLevel={zoomLevel}
+                                onCursorMove={(line, col) => setCursorPos({ line, col })}
+                            />
+                        </ErrorBoundary>
                     </div>
 
                     {/* Status Bar */}

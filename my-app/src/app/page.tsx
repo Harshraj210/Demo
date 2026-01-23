@@ -554,106 +554,165 @@ function HomeContent() {
                       </div>
                     </motion.div>
                   )}
-                  {filteredFolders.map(folder => (
-                    folder?.id && (
-                      <motion.div
-                        layout
-                        key={folder.id}
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        onClick={() => router.push(`/?folder=${folder.id}`)}
-                        className={cn(
-                          "group relative flex flex-col items-center justify-center cursor-pointer transition-all duration-500",
-                          hoveredDeleteId === folder.id && "shadow-[inset_0_0_25px_rgba(239,68,68,0.15)] rounded-2xl animate-pulse"
-                        )}
+                  {filteredFolders.length === 0 && !isCreatingFolder ? (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="col-span-full flex flex-col items-center justify-center p-12 text-center"
+                    >
+                      <div className="w-24 h-24 bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 ring-1 ring-cyan-500/20">
+                        <FolderPlus className="w-10 h-10 text-zinc-600" />
+                      </div>
+                      <h3 className="text-lg font-bold text-zinc-400 mb-2">No folders yet</h3>
+                      <p className="text-sm text-zinc-500 max-w-xs">Create a folder to organize your notes and keep things tidy.</p>
+                      <Button
+                         variant="ghost" 
+                         onClick={() => setIsCreatingFolder(true)}
+                         className="mt-6 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
                       >
-                        <div className="relative w-full aspect-4/3 mb-4 perspective-[1000px] flex items-center justify-center">
-                          <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 backdrop-blur text-white rounded-full"><MoreVertical className="h-4 w-4" /></Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onMouseEnter={() => setHoveredDeleteId(folder.id)}
-                                  onMouseLeave={() => setHoveredDeleteId(null)}
-                                  onClick={(e) => { e.stopPropagation(); setDeleteRequest({ id: folder.id, type: 'folder', title: folder.name }); }}
-                                  className="text-red-500 hover:bg-red-500/10 transition-colors"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" /> Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                       <Plus className="w-4 h-4 mr-2" />
+                       Create Folder
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    filteredFolders.map(folder => (
+                      folder?.id && (
+                        <motion.div
+                          layout
+                          key={folder.id}
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.8, opacity: 0 }}
+                          onClick={() => router.push(`/?folder=${folder.id}`)}
+                          className={cn(
+                            "group relative flex flex-col items-center justify-center cursor-pointer transition-all duration-500",
+                            hoveredDeleteId === folder.id && "shadow-[inset_0_0_25px_rgba(239,68,68,0.15)] rounded-2xl animate-pulse"
+                          )}
+                        >
+                          <div className="relative w-full aspect-4/3 mb-4 perspective-[1000px] flex items-center justify-center">
+                            <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 backdrop-blur text-white rounded-full"><MoreVertical className="h-4 w-4" /></Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onMouseEnter={() => setHoveredDeleteId(folder.id)}
+                                    onMouseLeave={() => setHoveredDeleteId(null)}
+                                    onClick={(e) => { e.stopPropagation(); setDeleteRequest({ id: folder.id, type: 'folder', title: folder.name }); }}
+                                    className="text-red-500 hover:bg-red-500/10 transition-colors"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                            {/* Folder 3D Body */}
+                            <div className="absolute w-[80%] h-[70%] bg-linear-to-br from-cyan-600 to-cyan-800 rounded-xl rounded-tl-none shadow-inner transition-transform duration-500">
+                              <div className="absolute -top-[15%] left-0 w-[40%] h-[20%] bg-cyan-600 rounded-t-lg" />
+                            </div>
+                            {/* Animated Paper */}
+                            <div className="absolute w-[70%] h-[60%] bg-white/90 rounded-md shadow-sm transition-transform duration-500 ease-out group-hover:-translate-y-8 z-0" />
+                            {/* Animated Front Flap */}
+                            <div className="absolute w-[80%] h-[70%] bg-linear-to-br from-cyan-400 to-cyan-500 rounded-xl shadow-lg border-t border-white/20 transition-all duration-500 ease-in-out origin-bottom group-hover:transform-[rotateX(-45deg)] group-hover:brightness-110 z-10">
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-[2px] bg-black/30 rounded-full" />
+                            </div>
                           </div>
-                          {/* Folder 3D Body */}
-                          <div className="absolute w-[80%] h-[70%] bg-linear-to-br from-cyan-600 to-cyan-800 rounded-xl rounded-tl-none shadow-inner transition-transform duration-500">
-                            <div className="absolute -top-[15%] left-0 w-[40%] h-[20%] bg-cyan-600 rounded-t-lg" />
+                          <div className="text-center w-full px-2">
+                            <h3 className="font-bold text-lg text-zinc-900 dark:text-white tracking-tight truncate">{folder.name}</h3>
+                            <p className="text-xs text-zinc-500 font-medium uppercase tracking-widest mt-0.5">
+                              {folderCounts[folder.id] || 0} {folderCounts[folder.id] === 1 ? 'File' : 'Files'}
+                            </p>
                           </div>
-                          {/* Animated Paper */}
-                          <div className="absolute w-[70%] h-[60%] bg-white/90 rounded-md shadow-sm transition-transform duration-500 ease-out group-hover:-translate-y-8 z-0" />
-                          {/* Animated Front Flap */}
-                          <div className="absolute w-[80%] h-[70%] bg-linear-to-br from-cyan-400 to-cyan-500 rounded-xl shadow-lg border-t border-white/20 transition-all duration-500 ease-in-out origin-bottom group-hover:transform-[rotateX(-45deg)] group-hover:brightness-110 z-10">
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-[2px] bg-black/30 rounded-full" />
-                          </div>
-                        </div>
-                        <div className="text-center w-full px-2">
-                          <h3 className="font-bold text-lg text-zinc-900 dark:text-white tracking-tight truncate">{folder.name}</h3>
-                          <p className="text-xs text-zinc-500 font-medium uppercase tracking-widest mt-0.5">
-                            {folderCounts[folder.id] || 0} {folderCounts[folder.id] === 1 ? 'File' : 'Files'}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )
-                  ))}
+                        </motion.div>
+                      )
+                    ))
+                  )}
                 </>
               )}
 
-              {(isRecentView || isFolderDetailView) && filteredNotes.map(note => (
-                <motion.div
-                  layout
-                  key={note.id}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                  onClick={() => handleOpenNote(note.id)}
-                  className={cn(
-                    "relative group rounded-[32px] overflow-hidden cursor-pointer transition-all hover:scale-[1.02] duration-500 bg-[#050505] border-[1.5px] border-cyan-500 shadow-[0_0_25px_rgba(6,182,212,0.25)] hover:shadow-[0_0_35px_rgba(6,182,212,0.4)] aspect-3/4 flex flex-col",
-                    hoveredDeleteId === note.id && "border-red-500/50 shadow-[0_0_35px_rgba(239,68,68,0.3)] animate-pulse"
-                  )}
-                >
-                  <div className="flex-1 w-full p-6 flex flex-col items-center justify-center relative">
-                    <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10"><MoreVertical className="h-5 w-5" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); copyNote(note, folderId || undefined); }}><Copy className="h-4 w-4 mr-2" /> Duplicate</DropdownMenuItem>
-                          <DropdownMenuItem
-                            onMouseEnter={() => setHoveredDeleteId(note.id)}
-                            onMouseLeave={() => setHoveredDeleteId(null)}
-                            onClick={(e) => { e.stopPropagation(); setDeleteRequest({ id: note.id, type: 'note', title: note.title || 'Untitled Project' }); }}
-                            className="text-red-500 hover:bg-red-500/10 transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+              {(isRecentView || isFolderDetailView) && (
+                filteredNotes.length === 0 ? (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="col-span-full flex flex-col items-center justify-center p-12 text-center"
+                  >
+                    <div className="w-24 h-24 bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 ring-1 ring-cyan-500/20">
+                      <FileText className="w-10 h-10 text-zinc-600" />
                     </div>
-                    <div className="flex-1 flex items-center justify-center w-full">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full" />
-                        <FileText className="relative h-24 w-24 text-cyan-400 stroke-[0.8] drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                    <h3 className="text-lg font-bold text-zinc-400 mb-2">
+                       {debouncedSearchQuery ? 'No matching notes' : 'No notes yet'}
+                    </h3>
+                    <p className="text-sm text-zinc-500 max-w-xs">
+                       {debouncedSearchQuery ? 'Try adjusting your search query.' : 'Create a new note to get started with your ideas.'}
+                    </p>
+                    {!debouncedSearchQuery && (
+                      <Button
+                        variant="ghost"
+                        onClick={async () => {
+                           const newNote = await createNote("Untitled Note", folderId || undefined);
+                           if (newNote) router.push(`/notes/${newNote.id}`);
+                        }}
+                        className="mt-6 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                      >
+                         <Plus className="w-4 h-4 mr-2" />
+                         Create Note
+                      </Button>
+                    )}
+                  </motion.div>
+                ) : (
+                  filteredNotes.map(note => (
+                    <motion.div
+                      layout
+                      key={note.id}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      onClick={() => handleOpenNote(note.id)}
+                      className={cn(
+                        "relative group rounded-[32px] overflow-hidden cursor-pointer transition-all hover:scale-[1.02] duration-500 bg-[#050505] border-[1.5px] border-cyan-500 shadow-[0_0_25px_rgba(6,182,212,0.25)] hover:shadow-[0_0_35px_rgba(6,182,212,0.4)] aspect-3/4 flex flex-col",
+                        hoveredDeleteId === note.id && "border-red-500/50 shadow-[0_0_35px_rgba(239,68,68,0.3)] animate-pulse"
+                      )}
+                    >
+                      <div className="flex-1 w-full p-6 flex flex-col items-center justify-center relative">
+                        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10"><MoreVertical className="h-5 w-5" /></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); copyNote(note, folderId || undefined); }}><Copy className="h-4 w-4 mr-2" /> Duplicate</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onMouseEnter={() => setHoveredDeleteId(note.id)}
+                                onMouseLeave={() => setHoveredDeleteId(null)}
+                                onClick={(e) => { e.stopPropagation(); setDeleteRequest({ id: note.id, type: 'note', title: note.title || 'Untitled Project' }); }}
+                                className="text-red-500 hover:bg-red-500/10 transition-colors"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center w-full">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full" />
+                            <FileText className="relative h-24 w-24 text-cyan-400 stroke-[0.8] drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                          </div>
+                        </div>
+                        <div className="w-full text-center mt-4">
+                          <h3 className="font-bold text-xl text-white tracking-tight mb-1 truncate px-2">{note.title || 'Untitled Project'}</h3>
+                          <p className="text-xs text-zinc-500 font-medium">Last edited {format(note.createdAt, 'd MMM, yyyy')}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="w-full text-center mt-4">
-                      <h3 className="font-bold text-xl text-white tracking-tight mb-1 truncate px-2">{note.title || 'Untitled Project'}</h3>
-                      <p className="text-xs text-zinc-500 font-medium">Last edited {format(note.createdAt, 'd MMM, yyyy')}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                    </motion.div>
+                  ))
+                )
+              )}
             </AnimatePresence>
           </div>
         )}

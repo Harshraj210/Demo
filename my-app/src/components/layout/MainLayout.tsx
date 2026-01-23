@@ -45,18 +45,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 )}
             </AnimatePresence>
             <main className="flex-1 h-full overflow-hidden flex flex-col relative w-full transition-all duration-300">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={pathname}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="flex-1 h-full w-full flex flex-col"
-                    >
-                        {children}
-                    </motion.div>
-                </AnimatePresence>
+                {children}
             </main>
         </div>
     );
